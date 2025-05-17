@@ -2,9 +2,21 @@ import React, { useState } from 'react'
 import TextToVideoForm from './forms/TextToVideoForm';
 import TitleToVideoForm from './forms/TitleToVideoForm';
 import AudioToVideoForm from './forms/AudioToVideoForm';
+import LoginForm from './forms/LoginForm';
+import SingupForm from './forms/SignupForm';
 
 const HeroSection = (props) => {
   const typeData = {
+    'login' : {
+      heading: 'Sign in to EzClip',
+      description: 'Sign in to your account to start generating videos',
+      form: <LoginForm {...props}/>,
+    },
+    'signup' : {
+      'heading': 'Welcome to EzClip',
+      'description': 'Join us to start generating videos',
+      'form': <SingupForm {...props}/>,
+    },
     'text_to_video': {
       heading: 'Turn Your Story into a Video',
       description: 'Paste your story or script below and EzClip will automatically create a narrated video for you',

@@ -3,9 +3,9 @@ import Button from '../ui/Button';
 import ProgressBar from '../ui/ProgressBar';
 import { generateVideoFromText } from '../../services/textToVideoService';
 import api from '../../services/api';
+import StatusMessage from "../ui/StatusMessage";
 
 const TextToVideoForm = () => {
-  const backendBaseUrl = import.meta.env.VITE_BACKEND_BASE_URL;
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -19,10 +19,8 @@ const TextToVideoForm = () => {
     setResult(null);
     try {
       const data = await generateVideoFromText(text);
-      console.log(data);
       setResult(data);
     } catch (err) {
-      console.log(err)
       setError(err.message);
     } finally {
       setLoading(false);
@@ -53,7 +51,7 @@ const TextToVideoForm = () => {
   return (
     <form className="w-full max-w-3xl flex flex-col items-center justify-center" onSubmit={handleSubmit}>
       {result && <ProgressBar progress={result?.progress || 0} statusMessage={result?.status_message || ""} />}
-      {error && <div className="text-red-500 mb-2">{error}</div>}
+      {error && <StatusMessage message={error} type="error" />}
       <textarea
         id="story-input"
         maxLength={1500}

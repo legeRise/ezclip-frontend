@@ -10,6 +10,14 @@ const Header = (props) => {
     setIsMenuOpen(!isMenuOpen);
   }
 
+  const handleLogout = () => {
+    localStorage.removeItem('access');
+    localStorage.removeItem('refresh');
+    setIsMenuOpen(false);
+    props.setIsAuthenticated(false); // set the authentication state to false
+    props.setSelectedType('login'); // similar to navigating to login after logout
+  }
+
 
 
   return (
@@ -30,18 +38,28 @@ const Header = (props) => {
         </div>
         <div id="menu"
             className={`relative bg-green-100 md:flex flex-col items-center justify-between rounded-lg p-4 gap-2 h-screen md:flex-row md:w-3/5 md:bg-transparent ${isMenuOpen ? '' : 'hidden'}`}>
-            <div className="flex flex-col gap-2 items-center justify-center md:flex-row md:gap-4">
-                <span className={`${ props.selectedType === 'text_to_video' ? 'text-green-600 font-bold underline' : ''} cursor-pointer hover:underline`} onClick={() => { props.setSelectedType('text_to_video'); setIsMenuOpen(false); }}>Text to Video</span>
+            <div className={`flex flex-col gap-2 items-center justify-center md:flex-row md:gap-4 ${props.isAuthenticated ? 'md:justify-between md:w-full' : 'md:justify-end md:w-full'}`}>
+              {props.isAuthenticated ? (
+                <>
+                <div className="flex flex-col gap-2 items-center md:flex-row md:gap-4">
+                <span className={`${ props.selectedType === 'text_to_video' ? 'text-cyan-700 font-bold' : ''} cursor-pointer hover:underline`} onClick={() => { props.setSelectedType('text_to_video'); setIsMenuOpen(false); }}>Text to Video</span>
                 <span className="relative cursor-not-allowed text-gray-400 flex items-center" title="Coming Soon">
                   Title to Video <Badge textColor="text-yellow-100" bgColor="bg-purple-600" className="absolute -top-2 -right-23 md:-top-5 md:-right-5" />
                 </span>
                 <span className="relative cursor-not-allowed text-gray-400 flex items-center" title="Coming Soon">
                   Audio to Video <Badge textColor="text-yellow-100" bgColor="bg-purple-600" className="absolute -top-2 -right-23 md:-top-5 md:-right-5" />
                 </span>
-            </div>
-            <div className="flex flex-col gap-2 items-center justify-center md:flex-row md:gap-4">
-                <span className="cursor-pointer hover:underline">Login</span>
-                <span className="cursor-pointer hover:underline">Sign up</span>
+                </div>
+                <span className="cursor-pointer hover:underline" onClick={handleLogout}>Logout</span>
+                
+                </>
+                ) : (
+
+                <div className="flex flex-col items-center md:flex-row md:gap-4">
+                <span className={`${ props.selectedType === 'login' ? 'text-cyan-700 font-bold' : ''} cursor-pointer hover:underline`} onClick={() => { props.setSelectedType('login'); setIsMenuOpen(false); }}>Login</span>
+                <span className={`${ props.selectedType === 'signup' ? 'text-cyan-700 font-bold' : ''} cursor-pointer hover:underline`} onClick={() => { props.setSelectedType('signup'); setIsMenuOpen(false); }}>Signup</span>
+                </div>
+              )}
             </div>
         </div>
 
