@@ -8,18 +8,18 @@ import SingupForm from './forms/SignupForm';
 const HeroSection = (props) => {
   const typeData = {
     'login' : {
-      heading: 'Sign in to EzClip',
-      description: 'Sign in to your account to start generating videos',
+      heading: 'Welcome Back!',
+      description: 'Sign in to start making videos effortlessly.',
       form: <LoginForm {...props}/>,
     },
     'signup' : {
-      'heading': 'Welcome to EzClip',
-      'description': 'Join us to start generating videos',
+      'heading': 'Join Ezclip',
+      'description': 'Create an account to start making videos effortlessly.',
       'form': <SingupForm {...props}/>,
     },
     'text_to_video': {
       heading: 'Turn Your Story into a Video',
-      description: 'Paste your story or script below and EzClip will automatically create a narrated video for you',
+      description: '',
       form: <TextToVideoForm />,
     },
     'title_to_video': {
@@ -34,19 +34,17 @@ const HeroSection = (props) => {
     },
   };
   const { heading, description, form } = typeData[props.selectedType];
+  const wideTypes = ['text_to_video', 'title_to_video', 'audio_to_video'];
+  const widthClass = wideTypes.includes(props.selectedType) ? 'max-w-3xl' : 'max-w-md';
 
 
   return (
-    <section className="bg-green-200 min-h-screen flex flex-col items-center justify-start gap-6 pt-16 px-4">
-    <h1 className="text-3xl md:text-5xl text-center">{heading}</h1>
-    <div className="flex flex-col items-center justify-center gap-2">
-        <p className="text-lg text-center">
-            {description}
-        </p>
-        <div className="w-full max-w-3xl bg-white bg-opacity-90 rounded-2xl shadow-xl p-8 flex flex-col items-center justify-center border border-gray-200">
+    <section className="bg-green-200 min-h-screen flex justify-center items-center px-4">
+        <div className={`bg-white shadow-lg p-8 rounded-xl w-full ${widthClass}`}>
+        <h1 className="text-3xl font-bold mb-4 text-center text-gray-600">{heading}</h1>
+        <p className="text-gray-600 mb-8 text-center">{description}</p>
           {form}
         </div>
-    </div>
 </section>
   )
 }

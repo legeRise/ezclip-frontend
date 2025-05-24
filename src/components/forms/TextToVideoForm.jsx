@@ -10,7 +10,44 @@ const TextToVideoForm = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [result, setResult] = useState(null);
+  const [languages, setLanguages] = useState([]);
+  const [voices, setVoices] = useState([]);
+  const [selectedLanguage, setSelectedLanguage] = useState("");
+  const [selectedVoice, setSelectedVoice] = useState("");
   const pollingRef = useRef();
+
+  // Fetch languages on mount
+  useEffect(() => {
+    async function fetchLanguages() {
+      try {
+        const { data } = await api.get("/text2video/edge-tts/languages/");
+        console.log("Fetched languages:", data.languages);
+        setLanguages(data.languages || []);
+      } catch (err) {
+        // ignore error
+      }
+    }
+    fetchLanguages();
+  }, []);
+
+  // Fetch voices when language changes
+  useEffect(() => {
+    if (!selectedLanguage) {
+      setVoices([]);
+      setSelectedVoice("");
+      return;
+    }
+    async function fetchVoices() {
+      try {
+        const { data } = await api.get(`/text2video/edge-tts/voices/${selectedLanguage}/`);
+        setVoices(data.voices || []);
+        setSelectedVoice(""); // reset
+      } catch (err) {
+        setVoices([]);
+      }
+    }
+    fetchVoices();
+  }, [selectedLanguage]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -18,7 +55,7 @@ const TextToVideoForm = () => {
     setError(null);
     setResult(null);
     try {
-      const data = await generateVideoFromText(text);
+      const data = await generateVideoFromText(text, selectedLanguage, selectedVoice);
       setResult(data);
     } catch (err) {
       setError(err.message);
@@ -49,9 +86,32 @@ const TextToVideoForm = () => {
   }, [result?.tracker_id]);
 
   return (
-    <form className="w-full max-w-3xl flex flex-col items-center justify-center" onSubmit={handleSubmit}>
+    <form className="flex flex-col justify-center" onSubmit={handleSubmit}>
       {result && <ProgressBar progress={result?.progress || 0} statusMessage={result?.status_message || ""} />}
       {error && <StatusMessage message={error} type="error" />}
+      <div className="flex flex-col md:flex-row gap-2 mb-2">
+        <select
+          className="border rounded p-2"
+          value={selectedLanguage}
+          onChange={e => setSelectedLanguage(e.target.value)}
+        >
+          <option value="">Select Language</option>
+          {languages.map(lang => (
+            <option key={lang} value={lang}>{lang}</option>
+          ))}
+        </select>
+        <select
+          className="border rounded p-2"
+          value={selectedVoice}
+          onChange={e => setSelectedVoice(e.target.value)}
+          disabled={!voices.length}
+        >
+          <option value="">Select Voice</option>
+          {voices.map(voice => (
+            <option key={voice} value={voice}>{voice}</option>
+          ))}
+        </select>
+      </div>
       <textarea
         id="story-input"
         maxLength={1500}
@@ -70,7 +130,6 @@ const TextToVideoForm = () => {
         disabled={
           loading || (result?.tracker_id && result?.status?.toUpperCase() !== "COMPLETED")
         }
-
       />
 
       <div className="mt-4">
@@ -99,9 +158,6 @@ const TextToVideoForm = () => {
           </div>
         )}
       </div>
-
-
-
     </form>
   );
 };

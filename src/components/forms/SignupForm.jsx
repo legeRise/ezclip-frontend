@@ -44,15 +44,13 @@ const SignupForm = (props) => {
     
   
   return (
-    <form className="flex flex-col px-2" onSubmit={handleSubmit}>
+    <form className="flex flex-col" onSubmit={handleSubmit}>
     {error ? (
       <StatusMessage message={error} type="error" />
     ) : result && (
       <StatusMessage message={result?.message || "Signup successful!"} type="success" />
     )}
-
-     <h1 className='text-xl mb-6 text-center'>Sign Up to Ezclip</h1>
-     <div className="flex flex-col items-center py-4">
+     {/* <div className=""> */}
      <input
         type="email"
         maxLength={150}
@@ -83,9 +81,9 @@ const SignupForm = (props) => {
         loading={loading}
         disabled={loading}
       />
-      </div>
+      {/* </div> */}
 
-    <div className="mt-2">
+    <div className="mt-2 text-center">
       Already a Member? Click to <span className='text-blue-400 cursor-pointer' onClick={() => props.setSelectedType('login')}>Login</span>
     </div>
 
