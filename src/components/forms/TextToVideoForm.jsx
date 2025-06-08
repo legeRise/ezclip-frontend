@@ -114,14 +114,14 @@ const TextToVideoForm = () => {
       </div>
       <textarea
         id="story-input"
-        maxLength={1500}
+        maxLength={2000}
         className="w-full h-60 md:h-80 p-4 border border-gray-300 rounded-xl mb-2 focus:outline-none focus:ring-2 focus:ring-purple-400 resize-none"
         placeholder="Paste your story or script here..."
         value={text}
         onChange={(e) => setText(e.target.value)}
       />
       <div id="char-count" className="text-sm text-gray-500 mb-2 w-full text-right">
-        {text.length} / 1500 characters
+        {text.length} / 2000 characters
       </div>
       <Button
         type="submit"
