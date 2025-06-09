@@ -21,25 +21,81 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response interceptor: handle errors globally
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+};
+
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
+    const originalRequest = error.config;
+
+    if (error.response && error.response.status === 401 && !originalRequest._retry) {
+      const refreshToken = localStorage.getItem("refresh");
+      if (refreshToken) {
+        if (isRefreshing) {
+          return new Promise(function (resolve, reject) {
+            failedQueue.push({ resolve, reject });
+          })
+            .then((token) => {
+              originalRequest.headers["Authorization"] = "Bearer " + token;
+              return api(originalRequest);
+            })
+            .catch((err) => Promise.reject(err));
+        }
+
+        originalRequest._retry = true;
+        isRefreshing = true;
+
+        try {
+          const res = await axios.post(
+            `${backendBaseUrl}/auth/jwt/refresh/`,
+            { refresh: refreshToken }
+          );
+          const newAccess = res.data.access;
+          localStorage.setItem("access", newAccess);
+          api.defaults.headers.common["Authorization"] = "Bearer " + newAccess;
+          processQueue(null, newAccess);
+          originalRequest.headers["Authorization"] = "Bearer " + newAccess;
+          return api(originalRequest);
+        } catch (refreshError) {
+          processQueue(refreshError, null);
+          localStorage.removeItem("access");
+          localStorage.removeItem("refresh");
+          window.location.reload();
+          return Promise.reject(refreshError);
+        } finally {
+          isRefreshing = false;
+        }
+      } else {
+        localStorage.removeItem("access");
+        localStorage.removeItem("refresh");
+        window.location.reload();
+      }
+    }
+
     const data = error.response?.data;
     let message = "API Error: Something went wrong";
-
     if (typeof data === "string") {
       message = data;
     } else if (data?.detail) {
       message = data.detail;
     } else if (data) {
-      // Pick first field's first error message if possible
       const firstField = Object.keys(data)[0];
       message = Array.isArray(data[firstField])
         ? data[firstField][0]
         : data[firstField];
     }
-
     return Promise.reject(new Error(message));
   }
 );
