@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import TextToVideoForm from './forms/TextToVideoForm';
 import TitleToVideoForm from './forms/TitleToVideoForm';
 import AudioToVideoForm from './forms/AudioToVideoForm';
+import MyCreations from './forms/MyCreations'
 import LoginForm from './forms/LoginForm';
 import SingupForm from './forms/SignupForm';
 
@@ -32,9 +33,14 @@ const HeroSection = (props) => {
       description: 'Upload your audio file below and EzClip will automatically create a video for you',
       form: <AudioToVideoForm />,
     },
+    'my_creations' : {
+      heading: 'My Creations',
+      description: '',
+      form: <MyCreations/>
+    }
   };
   const { heading, description, form } = typeData[props.selectedType];
-  const wideTypes = ['text_to_video', 'title_to_video', 'audio_to_video'];
+  const wideTypes = ['text_to_video', 'title_to_video', 'audio_to_video','my_creations'];
   const widthClass = wideTypes.includes(props.selectedType) ? 'max-w-3xl' : 'max-w-md';
 
 
