@@ -1,7 +1,7 @@
 import React from "react";
 import Spinner from "./Spinner";
 
-const Button = ({ text, loading = false, ...props }) => {
+const Button = ({ text, loading = false, icon = null, ...props }) => {
   const isDisabled = loading || props.disabled;
   return (
     <button
@@ -13,8 +13,10 @@ const Button = ({ text, loading = false, ...props }) => {
       disabled={isDisabled}
       {...props}
     >
+      {icon && <span className="mr-2 flex items-center">{icon}</span>}
       {text}
-      {loading || isDisabled && <Spinner colorClass='border-blue-600' size={20} className="ml-2" />}
+      {/* spinner was not working properly added () around (loading || isDisabled) to fix it */}
+      {(loading || isDisabled) && <Spinner colorClass='border-blue-600' size={20} className="ml-2" />}
     </button>
   );
 };

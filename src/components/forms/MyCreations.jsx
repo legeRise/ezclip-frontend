@@ -35,8 +35,17 @@ const MyCreations = () => {
 
   return (
     <>
-    <div className="flex justify-end px-2 py-4">
-      <Button text="Refresh" loading={loading} onClick={handleRefresh} disabled={loading} />
+    <div className="flex justify-between md:justify-end items-center px-3 py-4 gap-2">
+      <Button
+        text="Connect"
+        icon={<i className="fab fa-google-drive"></i>}
+      />
+      <Button
+       text="Refresh"
+       loading={loading}
+       onClick={handleRefresh}
+       disabled={loading}
+      />
     </div>
     <div className="max-h-[60vh] overflow-y-auto px-2 py-4">
       {error && <div className="text-center text-red-500">{error}</div>}
