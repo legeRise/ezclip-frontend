@@ -8,6 +8,7 @@ import Button from '../ui/Button';
 
 const MyCreations = () => {
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
   const [creations, setCreations] = useState([]);
 
@@ -18,8 +19,10 @@ const MyCreations = () => {
       const { data } = await api.get("/text2video/my-creations/");
       setCreations(data.creations);
     } catch (err) {
+      console.log(err)
       setError('Failed to load creations.');
     } finally {
+      // stop loading either way
       setLoading(false);
     }
   }
@@ -29,8 +32,14 @@ const MyCreations = () => {
     }, []);
 
   async function handleRefresh() {
-     fetchMyCreations();
+     setRefreshing(true);
+     await fetchMyCreations();
+      setRefreshing(false);
     };
+
+  const handleConnectDrive = () => {
+  window.location.href = "https://ez-clip.ovh/api/auth/google/start/";
+};
   
 
   return (
@@ -38,19 +47,21 @@ const MyCreations = () => {
     <div className="flex justify-between md:justify-end items-center px-3 py-4 gap-2">
       <Button
         text="Connect"
+        disabled={loading}
+        onClick={handleConnectDrive}
         icon={<i className="fab fa-google-drive"></i>}
       />
       <Button
        text="Refresh"
-       loading={loading}
        onClick={handleRefresh}
-       disabled={loading}
+       loading={refreshing}
+       disabled={loading || refreshing}
       />
     </div>
     <div className="max-h-[60vh] overflow-y-auto px-2 py-4">
       {error && <div className="text-center text-red-500">{error}</div>}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {loading && creations.length === 0 ? (
+        { (loading || refreshing) && creations.length === 0 ? (
           // Show skeletons or faded placeholders on initial load
           <>
             <div className="animate-pulse bg-gray-100 rounded-xl h-40" />

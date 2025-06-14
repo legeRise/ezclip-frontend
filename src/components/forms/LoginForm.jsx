@@ -11,7 +11,7 @@ const LoginForm = (props) => {
   const [result, setResult] = React.useState(null);
 
   
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError(null); // Clear previous error important if next time the result becomes available
     setResult(null); // Clear previous result 
@@ -32,7 +32,7 @@ const LoginForm = (props) => {
         }
   }
   return (
-    <form className="flex flex-col" onSubmit={handleSubmit}>
+    <form className="flex flex-col" onSubmit={handleLogin}>
     {error ? (
       <StatusMessage message={error} type="error" />
     ) : result && (
