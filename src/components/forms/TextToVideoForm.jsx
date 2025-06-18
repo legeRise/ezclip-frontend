@@ -14,6 +14,7 @@ const TextToVideoForm = () => {
   const [voices, setVoices] = useState([]);
   const [selectedLanguage, setSelectedLanguage] = useState("");
   const [selectedVoice, setSelectedVoice] = useState("");
+  const [aspectRatio, setAspectRatio] = useState("landscape");
   const pollingRef = useRef();
 
   // Fetch languages on mount
@@ -21,7 +22,6 @@ const TextToVideoForm = () => {
     async function fetchLanguages() {
       try {
         const { data } = await api.get("/text2video/edge-tts/languages/");
-        console.log("Fetched languages:", data.languages);
         setLanguages(data.languages || []);
       } catch (err) {
         // ignore error
@@ -49,13 +49,15 @@ const TextToVideoForm = () => {
     fetchVoices();
   }, [selectedLanguage]);
 
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
     setResult(null);
     try {
-      const data = await generateVideoFromText(text, selectedLanguage, selectedVoice);
+      const data = await generateVideoFromText(text, selectedLanguage, selectedVoice, aspectRatio);
       setResult(data);
     } catch (err) {
       setError(err.message);
@@ -95,7 +97,7 @@ const TextToVideoForm = () => {
           value={selectedLanguage}
           onChange={e => setSelectedLanguage(e.target.value)}
         >
-          <option value="">Select Language</option>
+          <option value="" disabled selected>Select Language</option>
           {languages.map(lang => (
             <option key={lang} value={lang}>{lang}</option>
           ))}
@@ -106,10 +108,19 @@ const TextToVideoForm = () => {
           onChange={e => setSelectedVoice(e.target.value)}
           disabled={!voices.length}
         >
-          <option value="">Select Voice</option>
+          <option value="" disabled selected>Select Voice</option>
           {voices.map(voice => (
             <option key={voice} value={voice}>{voice}</option>
           ))}
+        </select>
+        <select
+        className="border rounded p-2"
+        value={aspectRatio}
+        onChange={(e) => setAspectRatio(e.target.value)}
+        >
+          <option value="" disabled>Select Aspect Ratio</option>
+          <option value="landscape">LandScape (16:9)</option>
+          <option value="portrait">Portrait (9:16)</option>
         </select>
       </div>
       <textarea
