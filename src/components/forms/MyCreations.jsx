@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import api from '../../services/api';
 import CreationCard from '../ui/CreationCard';
-import Spinner from '../ui/Spinner';
 import Button from '../ui/Button';
+import BannerAd from '../ads/BannerAd';
 
 
 
@@ -58,6 +58,7 @@ const MyCreations = () => {
        disabled={loading || refreshing}
       />
     </div>
+    <BannerAd/>
     <div className="max-h-[60vh] overflow-y-auto px-2 py-4">
       {error && <div className="text-center text-red-500">{error}</div>}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
