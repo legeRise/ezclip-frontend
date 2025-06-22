@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { BrowserRouter as Router } from 'react-router-dom';
+import { HashRouter as Router } from 'react-router-dom';
 import Spinner from './components/ui/Spinner';
 import AppRoutes from './AppRoutes';
 import { UserProvider } from './contexts/UserContext';
