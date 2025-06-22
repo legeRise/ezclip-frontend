@@ -1,71 +1,58 @@
 import React, { useState } from 'react'
-import Badge from './ui/Badge';
+import { Link, replace, useNavigate } from 'react-router-dom';
 
-const Header = (props) => {
+const Header = ({ isAuthenticated, setIsAuthenticated }) => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
- const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  }
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
   const handleLogout = () => {
     localStorage.removeItem('access');
     localStorage.removeItem('refresh');
     setIsMenuOpen(false);
-    props.setIsAuthenticated(false); // set the authentication state to false
-    props.setSelectedType('login'); // similar to navigating to login after logout
+    setIsAuthenticated(false);
+    navigate('/login', { replace: true });
   }
-
-
 
   return (
     <header className="sticky top-0 z-10">
-    <nav className="bg-yellow-100 h-16 text-xl px-4 md:h-20 md:flex md:items-center md:justify-between">
+     <nav className="bg-yellow-100 h-16 text-xl px-4 md:h-20 md:flex md:items-center md:justify-between">
         <div className="h-full flex justify-between items-center">
-            <p className="cursor-pointer">EzClip</p>
-            <button>
-                { isMenuOpen ? <img id="close-menu-icon" width="32" height="32"
-                    src="https://img.icons8.com/small/32/delete-sign.png" alt="delete-sign" className="md:hidden"
-                     onClick={toggleMenu} 
-                     /> 
-                     :
-                     <img id="hamburger-menu-icon" width="32" height="32" src="https://img.icons8.com/small/32/menu.png"
-                    alt="menu" className="md:hidden" onClick={toggleMenu} />
-                }
-            </button>
+          <Link to="/" className="cursor-pointer">EzClip</Link>
+          <button>
+            {isMenuOpen ? (
+              <img id="close-menu-icon" width="32" height="32"
+                src="https://img.icons8.com/small/32/delete-sign.png" alt="delete-sign" className="md:hidden"
+                onClick={toggleMenu}
+              />
+            ) : (
+              <img id="hamburger-menu-icon" width="32" height="32" src="https://img.icons8.com/small/32/menu.png"
+                alt="menu" className="md:hidden" onClick={toggleMenu} />
+            )}
+          </button>
         </div>
         <div id="menu"
-      className={`fixed inset-0 bg-green-100 flex flex-col items-center justify-between rounded-lg p-4 gap-2 h-screen z-50 md:static md:bg-transparent md:p-0 md:h-auto md:flex-row md:w-3/5 ${isMenuOpen ? '' : 'hidden'} md:flex`}>
-            <div className={`flex flex-col gap-2 items-center justify-center md:flex-row md:gap-4 ${props.isAuthenticated ? 'md:justify-between md:w-full' : 'md:justify-end md:w-full'}`}>
-              {props.isAuthenticated ? (
-                <>
+          className={`fixed inset-0 bg-green-100 flex flex-col items-center justify-between rounded-lg p-4 gap-2 h-screen z-50 md:static md:bg-transparent md:p-0 md:h-auto md:flex-row md:w-3/5 ${isMenuOpen ? '' : 'hidden'} md:flex`}>
+          <div className={`flex flex-col gap-2 items-center justify-center md:flex-row md:gap-4 ${isAuthenticated ? 'md:justify-between md:w-full' : 'md:justify-end md:w-full'}`}>
+            {isAuthenticated ? (
+              <>
                 <div className="flex flex-col gap-2 items-center md:flex-row md:gap-4">
-                <span className={`${ props.selectedType === 'text_to_video' ? 'text-cyan-700 font-bold' : ''} cursor-pointer hover:underline`} onClick={() => { props.setSelectedType('text_to_video'); setIsMenuOpen(false); }}>Generate Video</span>
-                {/* <span className="relative cursor-not-allowed text-gray-400 flex items-center" title="Coming Soon">
-                  Title to Video <Badge textColor="text-yellow-100" bgColor="bg-purple-600" className="absolute -top-2 -right-23 md:-top-5 md:-right-5" />
-                </span>
-                <span className="relative cursor-not-allowed text-gray-400 flex items-center" title="Coming Soon">
-                  Audio to Video <Badge textColor="text-yellow-100" bgColor="bg-purple-600" className="absolute -top-2 -right-23 md:-top-5 md:-right-5" />
-                </span> */}
-                <span className={`${ props.selectedType === 'my_creations' ? 'text-cyan-700 font-bold' : ''} cursor-pointer hover:underline`} onClick={() => { props.setSelectedType('my_creations'); setIsMenuOpen(false); }}>My Creations</span>
+                  <Link to="/generate-video" className="cursor-pointer hover:underline" onClick={() => setIsMenuOpen(false)}>Generate Video</Link>
+                  <Link to="/my-creations" className="cursor-pointer hover:underline" onClick={() => setIsMenuOpen(false)}>My Creations</Link>
                 </div>
                 <span className="cursor-pointer hover:underline" onClick={handleLogout}>Logout</span>
-                
-                </>
-                ) : (
-
-                <div className="flex flex-col items-center md:flex-row md:gap-4">
-                <span className={`${ props.selectedType === 'login' ? 'text-cyan-700 font-bold' : ''} cursor-pointer hover:underline`} onClick={() => { props.setSelectedType('login'); setIsMenuOpen(false); }}>Login</span>
-                <span className={`${ props.selectedType === 'signup' ? 'text-cyan-700 font-bold' : ''} cursor-pointer hover:underline`} onClick={() => { props.setSelectedType('signup'); setIsMenuOpen(false); }}>Signup</span>
-                </div>
-              )}
-            </div>
+              </>
+            ) : (
+              <div className="flex flex-col items-center md:flex-row md:gap-4">
+                <Link to="/login" className="cursor-pointer hover:underline" onClick={() => setIsMenuOpen(false)}>Login</Link>
+                <Link to="/signup" className="cursor-pointer hover:underline" onClick={() => setIsMenuOpen(false)}>Signup</Link>
+              </div>
+            )}
+          </div>
         </div>
-
-    </nav>
-</header>
+      </nav>
+    </header>
   )
 }
 

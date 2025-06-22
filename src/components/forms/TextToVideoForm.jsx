@@ -114,7 +114,7 @@ const TextToVideoForm = () => {
           value={selectedLanguage}
           onChange={e => setSelectedLanguage(e.target.value)}
         >
-          <option value="" disabled selected>Select Language</option>
+          <option value="" disabled>Select Language</option>
           {languages.map(lang => (
             <option key={lang} value={lang}>{lang}</option>
           ))}
@@ -125,7 +125,7 @@ const TextToVideoForm = () => {
           onChange={e => setSelectedVoice(e.target.value)}
           disabled={!voices.length}
         >
-          <option value="" disabled selected>Select Voice</option>
+          <option value="" disabled>Select Voice</option>
           {voices.map(voice => (
             <option key={voice} value={voice}>{voice}</option>
           ))}

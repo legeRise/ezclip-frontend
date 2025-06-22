@@ -1,14 +1,16 @@
 import React from 'react'
 import Button from '../ui/Button'
+import { useNavigate } from 'react-router-dom';
 import { login } from '../../services/authService';
 import StatusMessage from '../ui/StatusMessage';
 
-const LoginForm = (props) => {
+const LoginForm = ({setIsAuthenticated}) => {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [error, setError] = React.useState(null);
   const [loading, setLoading] = React.useState(false);
   const [result, setResult] = React.useState(null);
+  const navigate = useNavigate();
 
   
   const handleLogin = async (e) => {
@@ -23,8 +25,8 @@ const LoginForm = (props) => {
           localStorage.setItem("access", data.access);
           localStorage.setItem("refresh", data.refresh);
           setResult(data);
-          props.setIsAuthenticated(true);
-          props.setSelectedType('text_to_video');
+          setIsAuthenticated(true);
+          navigate('/generate-video', {replace : true}); // Redirect to text-to-video page
         } catch (err) {
           setError(err.message);
         } finally {
@@ -66,7 +68,7 @@ const LoginForm = (props) => {
  
 
     <div className="mt-2 text-center">
-      Don't have an Account? <span className='text-blue-400 cursor-pointer' onClick={() => props.setSelectedType('signup')}>Sign Up</span>
+      Don't have an Account? <span className='text-blue-400 cursor-pointer' onClick={() => navigate('/signup')}>Sign Up</span>
     </div>
 
     </form>

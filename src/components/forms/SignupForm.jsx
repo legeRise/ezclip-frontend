@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import Button from '../ui/Button'
 import { signup } from '../../services/authService';
 import StatusMessage from '../ui/StatusMessage';
+import { useNavigate } from 'react-router-dom';
 
 const SignupForm = (props) => {
 
@@ -11,6 +12,7 @@ const SignupForm = (props) => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -84,7 +86,7 @@ const SignupForm = (props) => {
       {/* </div> */}
 
     <div className="mt-2 text-center">
-      Already a Member? Click to <span className='text-blue-400 cursor-pointer' onClick={() => props.setSelectedType('login')}>Login</span>
+      Already a Member? Click to <span className='text-blue-400 cursor-pointer' onClick={() => navigate('/login')}>Login</span>
     </div>
 
     </form>
