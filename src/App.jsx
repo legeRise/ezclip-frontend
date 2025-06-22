@@ -1,14 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { BrowserRouter as Router } from 'react-router-dom';
-import LoginPage from './pages/LoginPage';
-import SignupPage from './pages/SignupPage';
-import MainLayout from './Layouts/MainLayout';
-import MyCreationsPage from './pages/MyCreationsPage';
-import GenerateVideoPage from './pages/GenerateVideoPage';
-import PrivateRoute from './components/PrivateRoute';
-import PublicRoute from './components/PublicRoute';
 import Spinner from './components/ui/Spinner';
 import AppRoutes from './AppRoutes';
+import { UserProvider } from './contexts/UserContext';
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -36,9 +30,11 @@ const App = () => {
   }
 
   return (
-    <Router>
-      <AppRoutes isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />
-    </Router>
+    <UserProvider>
+      <Router>
+        <AppRoutes isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />
+      </Router>
+    </UserProvider>
   );
 };
 

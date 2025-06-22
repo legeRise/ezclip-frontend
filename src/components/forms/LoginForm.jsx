@@ -1,8 +1,9 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import Button from '../ui/Button'
 import { useNavigate } from 'react-router-dom';
-import { login } from '../../services/authService';
+import { login, getUserInfo } from '../../services/authService';
 import StatusMessage from '../ui/StatusMessage';
+import { UserContext } from '../../contexts/UserContext';
 
 const LoginForm = ({setIsAuthenticated}) => {
   const [email, setEmail] = React.useState("");
@@ -11,8 +12,8 @@ const LoginForm = ({setIsAuthenticated}) => {
   const [loading, setLoading] = React.useState(false);
   const [result, setResult] = React.useState(null);
   const navigate = useNavigate();
+  const { setUserInfo } = useContext(UserContext);
 
-  
   const handleLogin = async (e) => {
     e.preventDefault();
     setError(null); // Clear previous error important if next time the result becomes available
@@ -26,6 +27,8 @@ const LoginForm = ({setIsAuthenticated}) => {
           localStorage.setItem("refresh", data.refresh);
           setResult(data);
           setIsAuthenticated(true);
+          const userInfo = await getUserInfo();
+          setUserInfo(userInfo); // Set user info in context
           navigate('/generate-video', {replace : true}); // Redirect to text-to-video page
         } catch (err) {
           setError(err.message);

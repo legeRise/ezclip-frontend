@@ -50,7 +50,7 @@ const SignupForm = (props) => {
     {error ? (
       <StatusMessage message={error} type="error" />
     ) : result && (
-      <StatusMessage message={result?.message || "Signup successful!"} type="success" />
+      <StatusMessage message={result?.message || "Signup successful! Please Check Your Inbox for Verification Link"} type="success" />
     )}
      {/* <div className=""> */}
      <input
