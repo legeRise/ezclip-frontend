@@ -9,3 +9,8 @@ export async function generateVideoFromText(text, language, voice, resolution) {
   const res = await api.post("/text2video/start-generation/", payload);
   return res.data;
 }
+
+export async function recordFeedback(comment) {
+  const res = await api.post("/text2video/feedback/", { comment });
+  return res.data;
+}
