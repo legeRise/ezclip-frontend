@@ -16,6 +16,7 @@ const TextToVideoForm = () => {
   const [selectedLanguage, setSelectedLanguage] = useState("");
   const [selectedVoice, setSelectedVoice] = useState("");
   const [aspectRatio, setAspectRatio] = useState("landscape");
+  const [style, setStyle] = useState("enriched");
   const [downloadClicked, setDownloadClicked] = useState(
     () => !!window.localStorage.getItem("downloadClicked")
   );
@@ -61,7 +62,7 @@ const TextToVideoForm = () => {
     setError(null);
     setResult(null);
     try {
-      const data = await generateVideoFromText(text, selectedLanguage, selectedVoice, aspectRatio);
+      const data = await generateVideoFromText(text, selectedLanguage, selectedVoice, aspectRatio, style);
       setResult(data);
     } catch (err) {
       setError(err.message);
@@ -138,6 +139,14 @@ const TextToVideoForm = () => {
           <option value="" disabled>Select Aspect Ratio</option>
           <option value="landscape">LandScape (16:9)</option>
           <option value="portrait">Portrait (9:16)</option>
+        </select>
+        <select
+          className="border rounded p-2"
+          value={style}
+          onChange={e => setStyle(e.target.value)}
+        >
+          <option value="enriched">Enriched</option>
+          <option value="stock-style">Stock Style</option>
         </select>
       </div>
       <textarea
