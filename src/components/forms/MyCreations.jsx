@@ -37,20 +37,11 @@ const MyCreations = () => {
       setRefreshing(false);
     };
 
-  const handleConnectDrive = () => {
-  window.location.href = "https://ez-clip.ovh/api/auth/google/start/";
-};
   
 
   return (
     <>
     <div className="flex justify-between md:justify-end items-center px-3 py-4 gap-2">
-      <Button
-        text="Connect"
-        disabled={loading}
-        onClick={handleConnectDrive}
-        icon={<i className="fab fa-google-drive"></i>}
-      />
       <Button
        text="Refresh"
        onClick={handleRefresh}
