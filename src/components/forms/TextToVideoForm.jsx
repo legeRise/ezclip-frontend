@@ -16,7 +16,7 @@ const TextToVideoForm = () => {
   const [selectedLanguage, setSelectedLanguage] = useState("");
   const [selectedVoice, setSelectedVoice] = useState("");
   const [aspectRatio, setAspectRatio] = useState("landscape");
-  const [style, setStyle] = useState("enriched");
+  const [style, setStyle] = useState("stock_style");
   const [downloadClicked, setDownloadClicked] = useState(
     () => !!window.localStorage.getItem("downloadClicked")
   );
@@ -145,8 +145,8 @@ const TextToVideoForm = () => {
           value={style}
           onChange={e => setStyle(e.target.value)}
         >
-          <option value="enriched">Enriched</option>
-          <option value="stock-style">Stock Style</option>
+          <option value="cartoon_2d">2D Cartoon Style</option>
+          <option value="stock_style">Stock Style</option>
         </select>
       </div>
       <textarea

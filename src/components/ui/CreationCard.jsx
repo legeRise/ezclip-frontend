@@ -3,6 +3,13 @@ import Button from '../ui/Button';
 
 const CreationCard = ({ creation }) => {
   const [showScript, setShowScript] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(creation.script || '');
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1200);
+  };
 
   return (
     <div className="border rounded-xl p-6 bg-white shadow-lg hover:shadow-2xl transition-shadow duration-200 flex flex-col gap-3">
@@ -27,9 +34,25 @@ const CreationCard = ({ creation }) => {
           {showScript ? 'Hide Script' : 'Show Script'}
         </button>
         {showScript && (
-          <pre className="mt-2 bg-gray-100 rounded p-2 text-gray-700 max-h-40 overflow-y-auto whitespace-pre-wrap break-words text-sm">
-            {creation.script}
-          </pre>
+          <div className="relative mt-2">
+            <pre className="bg-gray-100 rounded p-2 text-gray-700 max-h-40 overflow-y-auto whitespace-pre-wrap break-words text-sm">
+              {creation.script}
+            </pre>
+            <Button
+              className="absolute right-2 top-2 md:right-5 p-0"
+              icon={
+                <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-200">
+                  {copied ? (
+                    <i className="fas fa-check text-green-700"></i>
+                  ) : (
+                    <i className="fas fa-copy"></i>
+                  )}
+                </span>
+              }
+              onClick={handleCopy}
+              aria-label="Copy script"
+            />
+          </div>
         )}
       </div>
       <div className="flex items-center gap-2 text-gray-500 text-sm">
