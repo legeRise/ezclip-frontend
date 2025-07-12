@@ -44,11 +44,11 @@ const Header = ({ isAuthenticated, setIsAuthenticated }) => {
                   <Link to="/my-creations" className="cursor-pointer hover:underline" onClick={() => setIsMenuOpen(false)}>My Creations</Link>
                 </div>
               <div className="flex flex-col items-center md:flex-row md:gap-4">
-<span
-  className="inline-block align-middle bg-green-200 border border-green-400 rounded-full px-3 py-1 text-green-900 text-xs font-semibold shadow"
->
-  {userInfo?.email}
-</span>
+            <span
+              className="inline-block align-middle bg-cyan-600 text-yellow-100 font-extrabold rounded-full px-3 py-1 text-sm shadow"
+            >
+              {userInfo?.email}
+            </span>
                 <span className="cursor-pointer hover:underline" onClick={handleLogout}>Logout</span>
               </div>
               </>

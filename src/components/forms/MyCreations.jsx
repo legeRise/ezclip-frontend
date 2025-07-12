@@ -41,7 +41,7 @@ const MyCreations = () => {
 
   return (
     <>
-    <div className="flex justify-between md:justify-end items-center px-3 py-4 gap-2">
+    <div className="flex justify-end px-3 py-4 gap-2">
       <Button
        text="Refresh"
        onClick={handleRefresh}
