@@ -110,44 +110,52 @@ const TextToVideoForm = () => {
       {result && <ProgressBar progress={result?.progress || 0} statusMessage={result?.status_message || ""} />}
       {error && <StatusMessage message={error} type="error" />}
       <div className="flex flex-col md:flex-row gap-2 mb-2">
-        <select
-          className="border rounded p-2"
-          value={selectedLanguage}
-          onChange={e => setSelectedLanguage(e.target.value)}
-        >
-          <option value="" disabled>Select Language</option>
-          {languages.map(lang => (
-            <option key={lang} value={lang}>{lang}</option>
-          ))}
-        </select>
-        <select
-          className="border rounded p-2"
-          value={selectedVoice}
-          onChange={e => setSelectedVoice(e.target.value)}
-          disabled={!voices.length}
-        >
-          <option value="" disabled>Select Voice</option>
-          {voices.map(voice => (
-            <option key={voice} value={voice}>{voice}</option>
-          ))}
-        </select>
-        <select
-        className="border rounded p-2"
-        value={aspectRatio}
-        onChange={(e) => setAspectRatio(e.target.value)}
-        >
-          <option value="" disabled>Select Aspect Ratio</option>
-          <option value="landscape">LandScape (16:9)</option>
-          <option value="portrait">Portrait (9:16)</option>
-        </select>
-        <select
-          className="border rounded p-2"
-          value={style}
-          onChange={e => setStyle(e.target.value)}
-        >
-          <option value="cartoon_2d">2D Cartoon Style</option>
-          <option value="stock_style">Stock Style</option>
-        </select>
+        <div className="flex-1 min-w-0">
+          <select
+            className="border rounded-lg p-2 w-full bg-white text-gray-800 focus:ring-2 focus:ring-purple-300 transition"
+            value={selectedLanguage}
+            onChange={e => setSelectedLanguage(e.target.value)}
+          >
+            <option value="" disabled>Select Language</option>
+            {languages.map(lang => (
+              <option key={lang} value={lang} className="truncate">{lang}</option>
+            ))}
+          </select>
+        </div>
+        <div className="flex-1 min-w-0">
+          <select
+            className="border rounded-lg p-2 w-full bg-white text-gray-800 focus:ring-2 focus:ring-purple-300 transition"
+            value={selectedVoice}
+            onChange={e => setSelectedVoice(e.target.value)}
+            disabled={!voices.length}
+          >
+            <option value="" disabled>Select Voice</option>
+            {voices.map(voice => (
+              <option key={voice} value={voice} className="truncate">{voice}</option>
+            ))}
+          </select>
+        </div>
+        <div className="flex-1 min-w-0">
+          <select
+            className="border rounded-lg p-2 w-full bg-white text-gray-800 focus:ring-2 focus:ring-purple-300 transition"
+            value={aspectRatio}
+            onChange={(e) => setAspectRatio(e.target.value)}
+          >
+            <option value="" disabled>Select Aspect Ratio</option>
+            <option value="landscape">LandScape (16:9)</option>
+            <option value="portrait">Portrait (9:16)</option>
+          </select>
+        </div>
+        <div className="flex-1 min-w-0">
+          <select
+            className="border rounded-lg p-2 w-full bg-white text-gray-800 focus:ring-2 focus:ring-purple-300 transition"
+            value={style}
+            onChange={e => setStyle(e.target.value)}
+          >
+            <option value="cartoon_2d">2D Cartoon Style</option>
+            <option value="stock_style">Stock Style</option>
+          </select>
+        </div>
       </div>
       <textarea
         id="story-input"

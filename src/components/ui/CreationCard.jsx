@@ -4,11 +4,27 @@ import Button from '../ui/Button';
 const CreationCard = ({ creation }) => {
   const [showScript, setShowScript] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [downloadClicked, setDownloadClicked] = useState(
+    () => !!window.localStorage.getItem(`downloadClicked_${creation.id}`)
+  );
 
   const handleCopy = () => {
     navigator.clipboard.writeText(creation.script || '');
     setCopied(true);
     setTimeout(() => setCopied(false), 1200);
+  };
+
+  const handleDownloadClick = (e) => {
+    if (!downloadClicked) {
+      e.preventDefault();
+      window.open(
+        "https://www.profitableratecpm.com/w1mmnuq0?key=ffc8c0830ebb222edc698605a3cc13aa",
+        "_blank"
+      );
+      setDownloadClicked(true);
+      window.localStorage.setItem(`downloadClicked_${creation.id}`, "1");
+    }
+    // else: allow normal download
   };
 
   return (
@@ -66,6 +82,7 @@ const CreationCard = ({ creation }) => {
               href={creation.video_url}
               download
               rel="noopener noreferrer"
+              onClick={handleDownloadClick}
             >
               <Button text="Download" type="button" />
             </a>
