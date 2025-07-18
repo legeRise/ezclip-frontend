@@ -11,7 +11,11 @@ const InfoBanner = () => (
     </div>
     <div>
       ⚠️ If you see <span className="font-semibold">"Failed to fetch progress"</span>, do the same, check {' '}
-      <a href="/#/my-creations" className="font-semibold underline text-blue-700 hover:text-blue-900">My Creations</a> page after a few minutes. If it still hasn't generated, please mention it in feedback.
+      <a href="/#/my-creations" className="font-semibold underline text-blue-700 hover:text-blue-900">My Creations</a> page after a few minutes.    </div>
+    <div>
+      ❌ The Status shows 
+      <span className="px-1 mx-1 py-1 rounded text-xs font-semibold bg-yellow-100 text-yellow-700">in progress </span>
+       even after 10 or more minutes? It's likely failed — please mention it in your feedback.
     </div>
   </div>
 );
