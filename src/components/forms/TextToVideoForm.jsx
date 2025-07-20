@@ -87,7 +87,7 @@ const TextToVideoForm = () => {
         setError("Failed to fetch progress.");
         clearInterval(pollingRef.current);
       }
-    }, 2000);
+    }, 5000);
 
     return () => clearInterval(pollingRef.current);
   }, [result?.tracker_id]);

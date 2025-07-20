@@ -40,6 +40,7 @@ const Header = ({ isAuthenticated, setIsAuthenticated }) => {
             {isAuthenticated ? (
               <>
                 <div className="flex flex-col gap-2 items-center md:flex-row md:gap-4">
+                  <Link to="/" className="cursor-pointer hover:underline" onClick={() => setIsMenuOpen(false)}>Home</Link>
                   <Link to="/generate-video" className="cursor-pointer hover:underline" onClick={() => setIsMenuOpen(false)}>Generate Video</Link>
                   <Link to="/my-creations" className="cursor-pointer hover:underline" onClick={() => setIsMenuOpen(false)}>My Creations</Link>
                 </div>
