@@ -1,5 +1,6 @@
-import React from 'react'
+import React, { useState } from 'react'
 import TextToVideoForm from '../components/forms/TextToVideoForm'
+import TitleToVideoForm from '../components/forms/TitleToVideoForm'
 import FormLayout from '../Layouts/FormLayout'
 import FloatingFeedback from '../components/FloatingFeedback'
 
@@ -21,9 +22,11 @@ const InfoBanner = () => (
 );
 
 const GenerateVideoPage = () => {
+  const [selectedForm, setSelectedForm] = useState('text2video');
+
   const heading = 'Turn Your Story into a Video';
   const description = '';
-  const form = <TextToVideoForm />;
+
   return (
     <>
       <FormLayout
@@ -32,7 +35,21 @@ const GenerateVideoPage = () => {
         form={
           <>
             <InfoBanner />
-            {form}
+            <div className="flex justify-center mb-4 gap-2">
+              <button
+                className={`px-4 py-2 rounded ${selectedForm === 'text2video' ? 'bg-yellow-200 font-bold' : 'bg-gray-100'}`}
+                onClick={() => setSelectedForm('text2video')}
+              >
+                Text to Video
+              </button>
+              <button
+                className={`px-4 py-2 rounded ${selectedForm === 'top5video' ? 'bg-yellow-200 font-bold' : 'bg-gray-100'}`}
+                onClick={() => setSelectedForm('top5video')}
+              >
+                Title to Video
+              </button>
+            </div>
+            {selectedForm === 'text2video' ? <TextToVideoForm /> : <TitleToVideoForm />}
           </>
         }
         wide={true}

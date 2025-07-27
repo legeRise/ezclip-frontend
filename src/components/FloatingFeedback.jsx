@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
 import { recordFeedback } from '../services/textToVideoService';
+import Spinner from './ui/Spinner';
 
 const FloatingFeedback = () => {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleSend = async (e) => {
     e.preventDefault();
     if (!input.trim()) return;
     setError(null);
+    setLoading(true);
     try {
       await recordFeedback(input);
       setSubmitted(true);
@@ -21,6 +24,8 @@ const FloatingFeedback = () => {
       }, 1500);
     } catch (err) {
       setError('Failed to send feedback. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -45,12 +50,15 @@ const FloatingFeedback = () => {
                 onChange={e => setInput(e.target.value)}
                 rows={3}
                 maxLength={300}
+                disabled={loading}
               />
               {error && <div className="text-red-500 text-xs mb-1">{error}</div>}
               <button
                 type="submit"
-                className="bg-green-500 text-white rounded-full px-4 py-1 font-semibold hover:bg-green-600 transition w-full"
+                className="bg-green-500 text-white rounded-full px-4 py-1 font-semibold hover:bg-green-600 transition w-full flex items-center justify-center gap-2"
+                disabled={loading}
               >
+                {loading && <Spinner size={18} colorClass="border-white" />}
                 Send
               </button>
             </form>
