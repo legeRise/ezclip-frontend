@@ -96,7 +96,7 @@ const TextToVideoForm = () => {
     if (!downloadClicked) {
       e.preventDefault();
       window.open(
-        "https://www.profitableratecpm.com/w1mmnuq0?key=ffc8c0830ebb222edc698605a3cc13aa",
+        "https://otieu.com/4/9636677",
         "_blank"
       );
       setDownloadClicked(true);
