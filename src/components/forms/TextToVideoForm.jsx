@@ -4,7 +4,7 @@ import ProgressBar from '../ui/ProgressBar';
 import { generateVideoFromText } from '../../services/textToVideoService';
 import api from '../../services/api';
 import StatusMessage from "../ui/StatusMessage";
-import BannerAd from '../ads/BannerAd';
+// import BannerAd from '../ads/BannerAd';
 
 const TextToVideoForm = () => {
   const [text, setText] = useState("");
@@ -17,9 +17,6 @@ const TextToVideoForm = () => {
   const [selectedVoice, setSelectedVoice] = useState("");
   const [aspectRatio, setAspectRatio] = useState("landscape");
   const [style, setStyle] = useState("stock_style");
-  const [downloadClicked, setDownloadClicked] = useState(
-    () => !!window.localStorage.getItem("downloadClicked")
-  );
   const pollingRef = useRef();
 
   // Fetch languages on mount
@@ -92,17 +89,9 @@ const TextToVideoForm = () => {
     return () => clearInterval(pollingRef.current);
   }, [result?.tracker_id]);
 
+  // Remove all ad redirect logic from download button
   const handleDownloadClick = (e) => {
-    if (!downloadClicked) {
-      e.preventDefault();
-      window.open(
-        "https://otieu.com/4/9636677",
-        "_blank"
-      );
-      setDownloadClicked(true);
-      window.localStorage.setItem("downloadClicked", "1");
-    }
-    // else: allow normal download
+    // No ad redirect, allow direct download
   };
 
   return (
@@ -202,7 +191,7 @@ const TextToVideoForm = () => {
         ) : (
           <div className="text-center text-gray-500">
             Video will appear here after generation
-             <BannerAd />
+             {/* <BannerAd /> */}
           </div>
         )}
       </div>

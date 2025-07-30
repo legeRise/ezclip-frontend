@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import Button from '../ui/Button';
 import ProgressBar from '../ui/ProgressBar';
 import StatusMessage from "../ui/StatusMessage";
-import BannerAd from '../ads/BannerAd';
+// import BannerAd from '../ads/BannerAd';
 import { generateVideoFromTitle } from '../../services/titleToVideoService';
 import api from '../../services/api';
 
@@ -58,17 +58,9 @@ const TitleToVideoForm = () => {
     return () => clearInterval(pollingRef.current);
   }, [result?.tracker_id]);
 
+  // Remove ad redirect logic from download button
   const handleDownloadClick = (e) => {
-    if (!downloadClicked) {
-      e.preventDefault();
-      window.open(
-        "https://otieu.com/4/9636677",
-        "_blank"
-      );
-      setDownloadClicked(true);
-      window.localStorage.setItem("downloadClicked", "1");
-    }
-    // else: allow normal download
+    // No ad redirect, allow direct download
   };
 
   return (
@@ -128,7 +120,7 @@ const TitleToVideoForm = () => {
         ) : (
           <div className="text-center text-gray-500">
             Video will appear here after generation
-            <BannerAd />
+            {/* <BannerAd /> */}
           </div>
         )}
       </div>

@@ -4,9 +4,6 @@ import Button from '../ui/Button';
 const TextToVideoCreationCard = ({ creation }) => {
   const [showScript, setShowScript] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [downloadClicked, setDownloadClicked] = useState(
-    () => !!window.localStorage.getItem(`downloadClicked_${creation.id}`)
-  );
 
   const handleCopy = () => {
     navigator.clipboard.writeText(creation.script || '');
@@ -15,16 +12,7 @@ const TextToVideoCreationCard = ({ creation }) => {
   };
 
   const handleDownloadClick = (e) => {
-    if (!downloadClicked) {
-      e.preventDefault();
-      window.open(
-        "https://otieu.com/4/9636677",
-        "_blank"
-      );
-      setDownloadClicked(true);
-      window.localStorage.setItem(`downloadClicked_${creation.id}`, "1");
-    }
-    // else: allow normal download
+    // No ad redirect, allow direct download
   };
 
   return (
@@ -103,9 +91,6 @@ const TextToVideoCreationCard = ({ creation }) => {
 
 const TitleToVideoCreationCard = ({ creation }) => {
   const [copied, setCopied] = useState(false);
-  const [downloadClicked, setDownloadClicked] = useState(
-    () => !!window.localStorage.getItem(`downloadClicked_${creation.id}`)
-  );
 
   const handleCopy = () => {
     navigator.clipboard.writeText(creation.title || '');
@@ -114,16 +99,7 @@ const TitleToVideoCreationCard = ({ creation }) => {
   };
 
   const handleDownloadClick = (e) => {
-    if (!downloadClicked) {
-      e.preventDefault();
-      window.open(
-        "https://otieu.com/4/9636677",
-        "_blank"
-      );
-      setDownloadClicked(true);
-      window.localStorage.setItem(`downloadClicked_${creation.id}`, "1");
-    }
-    // else: allow normal download
+    // No ad redirect, allow direct download
   };
 
   return (
