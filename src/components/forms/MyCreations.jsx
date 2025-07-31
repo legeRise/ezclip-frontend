@@ -49,7 +49,7 @@ const MyCreations = ({ selectedType = 'text2video' }) => {
     <>
       <div className="flex flex-wrap justify-center gap-4 mb-2 text-sm">
         <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded">
-          {selectedTypeLabel}: <b>{selectedTypeCount}</b>
+          Total Generations: <b>{selectedTypeCount}</b>
         </span>
       </div>
       <div className="flex justify-end px-3 py-4 gap-2">
