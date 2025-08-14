@@ -22,7 +22,7 @@ const InfoBanner = () => (
 );
 
 const GenerateVideoPage = () => {
-  const [selectedForm, setSelectedForm] = useState('text2video');
+  const [selectedForm, setSelectedForm] = useState('top5video');
 
   const heading = 'Turn Your Story into a Video';
   const description = '';
