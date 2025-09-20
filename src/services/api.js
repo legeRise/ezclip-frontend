@@ -40,6 +40,12 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    // Skip refresh logic for requests with skipAuth=true
+    if (originalRequest?.skipAuth) {
+      // Let the error propagate normally
+      return Promise.reject(error);
+    }
+
     if (error.response && error.response.status === 401 && !originalRequest._retry) {
       const refreshToken = localStorage.getItem("refresh");
       if (refreshToken) {

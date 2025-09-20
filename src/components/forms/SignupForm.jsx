@@ -62,7 +62,7 @@ const SignupForm = (props) => {
       <>
         <StatusMessage message={error} type="error" />
         {error.toLowerCase().includes("email") && (
-          <div className="mt-2 flex flex-col items-center">
+          <div className="my-2 flex flex-col items-center">
             <button
               onClick={handleResendActivation}
               type="button"
