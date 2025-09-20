@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import Button from '../ui/Button'
-import { signup } from '../../services/authService';
+import { signup, resendActivationEmail } from '../../services/authService';
 import StatusMessage from '../ui/StatusMessage';
 import { useNavigate } from 'react-router-dom';
 
@@ -12,6 +12,7 @@ const SignupForm = (props) => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
+  const [resendStatus, setResendStatus] = useState(null);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -43,12 +44,38 @@ const SignupForm = (props) => {
           setLoading(false);
         }
   }
+
+  const handleResendActivation = async () => {
+    setResendStatus(null);
+    try {
+      await resendActivationEmail(email);
+      setResendStatus("Activation email resent! Please check your inbox.");
+    } catch (err) {
+      setResendStatus("Could not resend activation email.");
+    }
+  };
     
   
   return (
     <form className="flex flex-col" onSubmit={handleSubmit}>
     {error ? (
-      <StatusMessage message={error} type="error" />
+      <>
+        <StatusMessage message={error} type="error" />
+        {error.toLowerCase().includes("email") && (
+          <div className="mt-2 flex flex-col items-center">
+            <button
+              onClick={handleResendActivation}
+              type="button"
+              className="text-sm px-4 py-2 rounded bg-gray-100 hover:bg-gray-200 text-blue-600 border border-gray-200 transition"
+            >
+              Resend Activation Email
+            </button>
+            {resendStatus && (
+              <span className="text-xs text-gray-500 my-1">{resendStatus}</span>
+            )}
+          </div>
+        )}
+      </>
     ) : result && (
       <StatusMessage message={result?.message || "Signup successful! Please Check Your Inbox for Verification Link"} type="success" />
     )}

@@ -10,6 +10,9 @@ import PublicRoute from './components/PublicRoute';
 import HomePage from './pages/HomePage';
 import ActivateAccount from './pages/ActivateAccount';
 
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
+
 const AppRoutes = ({ isAuthenticated, setIsAuthenticated }) => (
   <Routes>
     <Route
@@ -25,7 +28,8 @@ const AppRoutes = ({ isAuthenticated, setIsAuthenticated }) => (
         <Route path="login" element={<LoginPage setIsAuthenticated={setIsAuthenticated} />} />
         <Route path="signup" element={<SignupPage />} />
         <Route path="activate/:uid/:token" element={<ActivateAccount />} />
-      </Route>
+  <Route path="reset-password/:uid/:token" element={<ResetPasswordPage />} />
+        <Route path="forgot-password" element={<ForgotPasswordPage />} /></Route>
 
       {/* Protected routes */}
       <Route element={<PrivateRoute isAuthenticated={isAuthenticated} />}>

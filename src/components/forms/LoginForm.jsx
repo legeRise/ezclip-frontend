@@ -38,22 +38,21 @@ const LoginForm = ({setIsAuthenticated}) => {
   }
   return (
     <form className="flex flex-col" onSubmit={handleLogin}>
-    {error ? (
-      <StatusMessage message={error} type="error" />
-    ) : result && (
-      <StatusMessage message="Login successful!" type="success" />
-    )}
+      {error ? (
+        <StatusMessage message={error} type="error" />
+      ) : result && (
+        <StatusMessage message="Login successful!" type="success" />
+      )}
 
-     <input
+      <input
         type="text"
         maxLength={150}
         placeholder="Email"
         className="w-full p-3 border border-gray-300 rounded-xl mb-2"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-
       />
-     <input
+      <input
         type="password"
         maxLength={150}
         placeholder="Password"
@@ -68,12 +67,24 @@ const LoginForm = ({setIsAuthenticated}) => {
         loading={loading}
         disabled={loading}
       />
- 
 
-    <div className="mt-2 text-center">
-      Don't have an Account? <span className='text-blue-400 cursor-pointer' onClick={() => navigate('/signup')}>Sign Up</span>
-    </div>
-
+      <div className="mt-2 flex flex-col items-center">
+        <span
+          className="text-blue-400 cursor-pointer text-sm mb-5"
+          onClick={() => navigate('/forgot-password')}
+        >
+          Forgot Password?
+        </span>
+        <span className="text-center text-sm">
+          Don't have an Account?{' '}
+          <span
+            className="text-blue-400 cursor-pointer"
+            onClick={() => navigate('/signup')}
+          >
+            Sign Up
+          </span>
+        </span>
+      </div>
     </form>
   )
 }
