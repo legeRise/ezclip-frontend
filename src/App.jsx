@@ -3,6 +3,8 @@ import { HashRouter as Router } from 'react-router-dom';
 import Spinner from './components/ui/Spinner';
 import AppRoutes from './AppRoutes';
 import { UserProvider } from './contexts/UserContext';
+import OneTapLogin from './components/google/OneTapLogin';
+
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -31,6 +33,9 @@ const App = () => {
 
   return (
     <UserProvider>
+      {!isAuthenticated && (
+        <OneTapLogin onAuth={setIsAuthenticated} />
+      )}
       <Router>
         <AppRoutes isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />
       </Router>

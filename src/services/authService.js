@@ -10,6 +10,11 @@ export async function login(email, password) {
   return res.data;
 }
 
+export async function googleOneTapLogin(credential) {
+  const res = await api.post("/auth/google-one-tap/", { id_token : credential }, { skipAuth: true });
+  return res.data;
+}
+
 export async function activateAccount(uid, token) {
   const res = await api.post("/auth/users/activation/", { uid, token }, { skipAuth: true });
   return res.data;
