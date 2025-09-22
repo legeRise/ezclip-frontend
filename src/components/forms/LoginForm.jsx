@@ -22,7 +22,7 @@ const LoginForm = ({setIsAuthenticated}) => {
     loading: googleLoading,
     error: googleError,
     result: googleResult,
-  } = useGoogleSignIn();
+  } = useGoogleSignIn(setIsAuthenticated);
 
   const handleLogin = async (e) => {
     e.preventDefault();

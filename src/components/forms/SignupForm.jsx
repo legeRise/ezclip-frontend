@@ -22,7 +22,7 @@ const SignupForm = (props) => {
     loading: googleLoading,
     error: googleError,
     result: googleResult,
-  } = useGoogleSignIn();
+  } = useGoogleSignIn(props.setIsAuthenticated);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

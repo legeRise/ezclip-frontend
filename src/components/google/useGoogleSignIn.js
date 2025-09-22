@@ -2,7 +2,7 @@ import { useState, useContext } from "react";
 import { signInWithGoogle, getUserInfo } from "../../services/authService";
 import { UserContext } from "../../contexts/UserContext";
 
-export function useGoogleSignIn() {
+export function useGoogleSignIn(setIsAuthenticated) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [result, setResult] = useState(null);
@@ -20,6 +20,7 @@ export function useGoogleSignIn() {
         const userInfo = await getUserInfo();
         setUserInfo(userInfo);
         setResult(data);
+        if (setIsAuthenticated) setIsAuthenticated(true); // <-- update auth status
       } else {
         setError(data.message || "Google sign-in failed");
       }
