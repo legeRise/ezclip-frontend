@@ -65,9 +65,6 @@ const LoginForm = ({setIsAuthenticated}) => {
             setError('Google sign-in failed');
           }}
         />
-        {googleLoading && <span className="ml-2 text-gray-500">Signing in...</span>}
-        {googleError && <StatusMessage message={googleError} type="error" />}
-        {googleResult && <StatusMessage message="Google sign-in successful!" type="success" />}
       </div>
 
       <input
