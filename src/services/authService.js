@@ -10,8 +10,8 @@ export async function login(email, password) {
   return res.data;
 }
 
-export async function googleOneTapLogin(credential) {
-  const res = await api.post("/auth/google-one-tap/", { id_token : credential }, { skipAuth: true });
+export async function signInWithGoogle(credential) {
+  const res = await api.post("/auth/login-with-google/", { id_token : credential }, { skipAuth: true });
   return res.data;
 }
 

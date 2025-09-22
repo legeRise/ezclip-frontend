@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { login, getUserInfo } from '../../services/authService';
 import StatusMessage from '../ui/StatusMessage';
 import { UserContext } from '../../contexts/UserContext';
+import { GoogleLogin } from '@react-oauth/google';
+import { useGoogleSignIn } from '../google/useGoogleSignIn';
 
 const LoginForm = ({setIsAuthenticated}) => {
   const [email, setEmail] = React.useState("");
@@ -13,6 +15,14 @@ const LoginForm = ({setIsAuthenticated}) => {
   const [result, setResult] = React.useState(null);
   const navigate = useNavigate();
   const { setUserInfo } = useContext(UserContext);
+
+  // Use the centralized Google sign-in hook
+  const {
+    handleGoogleSignIn,
+    loading: googleLoading,
+    error: googleError,
+    result: googleResult,
+  } = useGoogleSignIn();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -36,6 +46,7 @@ const LoginForm = ({setIsAuthenticated}) => {
           setLoading(false);
         }
   }
+
   return (
     <form className="flex flex-col" onSubmit={handleLogin}>
       {error ? (
@@ -43,6 +54,21 @@ const LoginForm = ({setIsAuthenticated}) => {
       ) : result && (
         <StatusMessage message="Login successful!" type="success" />
       )}
+
+      {/* Google Sign-In Button */}
+      <div className='flex justify-center items-center mb-4'>
+        <GoogleLogin
+          onSuccess={credentialResponse => {
+            handleGoogleSignIn(credentialResponse);
+          }}
+          onError={() => {
+            setError('Google sign-in failed');
+          }}
+        />
+        {googleLoading && <span className="ml-2 text-gray-500">Signing in...</span>}
+        {googleError && <StatusMessage message={googleError} type="error" />}
+        {googleResult && <StatusMessage message="Google sign-in successful!" type="success" />}
+      </div>
 
       <input
         type="text"

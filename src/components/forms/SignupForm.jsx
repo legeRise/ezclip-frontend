@@ -3,9 +3,10 @@ import Button from '../ui/Button'
 import { signup, resendActivationEmail } from '../../services/authService';
 import StatusMessage from '../ui/StatusMessage';
 import { useNavigate } from 'react-router-dom';
+import { GoogleLogin } from '@react-oauth/google';
+import { useGoogleSignIn } from '../google/useGoogleSignIn';
 
 const SignupForm = (props) => {
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -14,6 +15,14 @@ const SignupForm = (props) => {
   const [result, setResult] = useState(null);
   const [resendStatus, setResendStatus] = useState(null);
   const navigate = useNavigate();
+
+  // Use the centralized Google sign-in hook
+  const {
+    handleGoogleSignIn,
+    loading: googleLoading,
+    error: googleError,
+    result: googleResult,
+  } = useGoogleSignIn();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -58,29 +67,41 @@ const SignupForm = (props) => {
   
   return (
     <form className="flex flex-col" onSubmit={handleSubmit}>
-    {error ? (
-      <>
-        <StatusMessage message={error} type="error" />
-        {error.toLowerCase().includes("email") && (
-          <div className="my-2 flex flex-col items-center">
-            <button
-              onClick={handleResendActivation}
-              type="button"
-              className="text-sm px-4 py-2 rounded bg-gray-100 hover:bg-gray-200 text-blue-600 border border-gray-200 transition"
-            >
-              Resend Activation Email
-            </button>
-            {resendStatus && (
-              <span className="text-xs text-gray-500 my-1">{resendStatus}</span>
-            )}
-          </div>
-        )}
-      </>
-    ) : result && (
-      <StatusMessage message={result?.message || "Signup successful! Please Check Your Inbox for Verification Link"} type="success" />
-    )}
-     {/* <div className=""> */}
-     <input
+      {error ? (
+        <>
+          <StatusMessage message={error} type="error" />
+          {error.toLowerCase().includes("email") && (
+            <div className="my-2 flex flex-col items-center">
+              <button
+                onClick={handleResendActivation}
+                type="button"
+                className="text-sm px-4 py-2 rounded bg-gray-100 hover:bg-gray-200 text-blue-600 border border-gray-200 transition"
+              >
+                Resend Activation Email
+              </button>
+              {resendStatus && (
+                <span className="text-xs text-gray-500 my-1">{resendStatus}</span>
+              )}
+            </div>
+          )}
+        </>
+      ) : result && (
+        <StatusMessage message={result?.message || "Signup successful! Please Check Your Inbox for Verification Link"} type="success" />
+      )}
+
+      {/* Google Sign-In Button */}
+      <div className='flex justify-center items-center mb-4'>
+        <GoogleLogin
+          onSuccess={credentialResponse => {
+            handleGoogleSignIn(credentialResponse);
+          }}
+          onError={() => {
+            console.log('Google Sign in Failed');
+          }}
+        />
+      </div>
+
+      <input
         type="email"
         maxLength={150}
         placeholder="Email"
