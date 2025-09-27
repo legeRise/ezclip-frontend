@@ -142,6 +142,7 @@ const TextToVideoForm = () => {
             onChange={e => setStyle(e.target.value)}
           >
             <option value="cartoon_2d">2D Cartoon Style</option>
+            <option value="cartoon_3d">3D Cartoon Style</option>
             <option value="stock_style">Stock Style</option>
           </select>
         </div>
