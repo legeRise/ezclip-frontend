@@ -15,3 +15,9 @@ export async function recordFeedback(comment) {
   const res = await api.post("/text2video/feedback/", { comment });
   return res.data;
 }
+
+
+export async function getStyles() {
+  const res = await api.get("/text2video/visual-styles/");
+  return res.data;
+}

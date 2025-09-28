@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Button from '../ui/Button';
 import ProgressBar from '../ui/ProgressBar';
-import { generateVideoFromText } from '../../services/textToVideoService';
+import { generateVideoFromText, getStyles } from '../../services/textToVideoService';
 import api from '../../services/api';
 import StatusMessage from "../ui/StatusMessage";
 // import BannerAd from '../ads/BannerAd';
@@ -13,11 +13,26 @@ const TextToVideoForm = () => {
   const [result, setResult] = useState(null);
   const [languages, setLanguages] = useState([]);
   const [voices, setVoices] = useState([]);
+  const [styles, setStyles] = useState([]); // <-- Add state for styles
   const [selectedLanguage, setSelectedLanguage] = useState("");
   const [selectedVoice, setSelectedVoice] = useState("");
   const [aspectRatio, setAspectRatio] = useState("landscape");
-  const [style, setStyle] = useState("stock_style");
+  const [style, setStyle] = useState("");
   const pollingRef = useRef();
+
+  // Fetch styles on mount
+  useEffect(() => {
+    async function fetchStyles() {
+      try {
+        const data = await getStyles();
+        setStyles(data || []); // Set styles from API response
+        setStyle(data[0]?.name || ""); // Default to the first style
+      } catch (err) {
+        setStyles([]);
+      }
+    }
+    fetchStyles();
+  }, []);
 
   // Fetch languages on mount
   useEffect(() => {
@@ -50,8 +65,6 @@ const TextToVideoForm = () => {
     }
     fetchVoices();
   }, [selectedLanguage]);
-
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -88,11 +101,6 @@ const TextToVideoForm = () => {
 
     return () => clearInterval(pollingRef.current);
   }, [result?.tracker_id]);
-
-  // Remove all ad redirect logic from download button
-  const handleDownloadClick = (e) => {
-    // No ad redirect, allow direct download
-  };
 
   return (
     <form className="flex flex-col justify-center" onSubmit={handleSubmit}>
@@ -141,9 +149,10 @@ const TextToVideoForm = () => {
             value={style}
             onChange={e => setStyle(e.target.value)}
           >
-            <option value="cartoon_2d">2D Cartoon Style</option>
-            <option value="cartoon_3d">3D Cartoon Style</option>
-            <option value="stock_style">Stock Style</option>
+            <option value="" disabled>Select Style</option>
+            {styles.map(s => (
+              <option key={s.name} value={s.name}>{s.display_name}</option>
+            ))}
           </select>
         </div>
       </div>
@@ -183,7 +192,6 @@ const TextToVideoForm = () => {
                 href={result.video_url}
                 download
                 rel="noopener noreferrer"
-                onClick={handleDownloadClick}
               >
                 <Button text="Download" type="button" />
               </a>
@@ -192,7 +200,6 @@ const TextToVideoForm = () => {
         ) : (
           <div className="text-center text-gray-500">
             Video will appear here after generation
-             {/* <BannerAd /> */}
           </div>
         )}
       </div>
