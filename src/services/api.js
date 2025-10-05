@@ -42,8 +42,7 @@ api.interceptors.response.use(
 
     // Skip refresh logic for requests with skipAuth=true
     if (originalRequest?.skipAuth) {
-      // Let the error propagate normally
-      return Promise.reject(error);
+    return Promise.reject(new Error(parseApiError(error)));
     }
 
     if (error.response && error.response.status === 401 && !originalRequest._retry) {
@@ -90,20 +89,25 @@ api.interceptors.response.use(
       }
     }
 
-    const data = error.response?.data;
-    let message = "API Error: Something went wrong";
-    if (typeof data === "string") {
-      message = data;
-    } else if (data?.detail) {
-      message = data.detail;
-    } else if (data) {
-      const firstField = Object.keys(data)[0];
-      message = Array.isArray(data[firstField])
-        ? data[firstField][0]
-        : data[firstField];
-    }
-    return Promise.reject(new Error(message));
+    // Use the parser for all other errors
+    return Promise.reject(new Error(parseApiError(error)));
   }
 );
+
+
+
+function parseApiError(error) {
+  const data = error.response?.data;
+  let message = "API Error: Something went wrong";
+  if (typeof data === "string") message = data;
+  else if (data?.detail) message = data.detail;
+  else if (data) {
+    const firstField = Object.keys(data)[0];
+    message = Array.isArray(data[firstField])
+      ? data[firstField][0]
+      : data[firstField];
+  }
+  return message;
+}
 
 export default api;
