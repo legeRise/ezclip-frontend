@@ -76,9 +76,11 @@ const TextToVideoCreationCard = ({ creation }) => {
             </a>
           </div>
         ) : creation.status === 'completed' ? (
-          <span className="text-yellow-600 italic">
-            Video was removed from storage after 24 hours of generation
-          </span>
+          <div className="flex justify-end">
+            <span className='bg-red-100 text-red-700 font-bold px-2 rounded text-sm'>
+              Expired
+            </span>
+          </div>
         ) : (
           <span className="text-gray-400 italic">
             Video not available yet.
@@ -151,9 +153,11 @@ const TitleToVideoCreationCard = ({ creation }) => {
             </a>
           </div>
         ) : creation.status === 'completed' ? (
-          <span className="text-yellow-600 italic">
-            Video was removed from storage after 24 hours of generation
-          </span>
+          <div className="flex justify-end">
+            <span className='bg-red-100 text-red-700 font-bold px-2 rounded text-sm'>
+              Expired
+            </span>
+          </div>
         ) : (
           <span className="text-gray-400 italic">
             Video not available yet.

@@ -51,6 +51,12 @@ const MyCreations = ({ selectedType = 'text2video' }) => {
         <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded">
           Total Generations: <b>{selectedTypeCount}</b>
         </span>
+
+      </div>
+      <div className="flex items-center justify-center">
+        <span className="text-gray-400 italic text-center">
+          Videos are automatically deleted after 24 hours of generation
+          </span>
       </div>
       <div className="flex justify-end px-3 py-4 gap-2">
         <Button
