@@ -77,7 +77,7 @@ const TextToVideoCreationCard = ({ creation }) => {
           </div>
         ) : creation.status === 'completed' ? (
           <span className="text-yellow-600 italic">
-            Video was removed from storage after an hour.
+            Video was removed from storage after 24 hours of generation
           </span>
         ) : (
           <span className="text-gray-400 italic">
@@ -152,7 +152,7 @@ const TitleToVideoCreationCard = ({ creation }) => {
           </div>
         ) : creation.status === 'completed' ? (
           <span className="text-yellow-600 italic">
-            Video was removed from storage after an hour.
+            Video was removed from storage after 24 hours of generation
           </span>
         ) : (
           <span className="text-gray-400 italic">
