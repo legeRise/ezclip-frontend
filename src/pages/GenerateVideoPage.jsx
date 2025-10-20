@@ -22,7 +22,7 @@ const InfoBanner = () => (
 );
 
 const GenerateVideoPage = () => {
-  const [selectedForm, setSelectedForm] = useState('top5video');
+  const [selectedForm, setSelectedForm] = useState('text2video');
 
   const heading = 'Turn Your Story into a Video';
   const description = '';
@@ -49,7 +49,19 @@ const GenerateVideoPage = () => {
                 Title to Video
               </button>
             </div>
-            {selectedForm === 'text2video' ? <TextToVideoForm /> : <TitleToVideoForm />}
+            {selectedForm === 'text2video' ? (
+              <TextToVideoForm />
+            ) : (
+              <div className="text-center my-8">
+                <div className="inline-block px-4 py-3 rounded-lg bg-yellow-50 border border-yellow-200 text-yellow-800 text-base font-medium shadow-sm">
+                  <span className="mr-2">ℹ️</span>
+                  <span>
+                    <strong>Note:</strong> Title to Video generation is temporarily unavailable.<br />
+                    Please use the <span className="font-semibold text-green-700 cursor-pointer" onClick={() => setSelectedForm('text2video')}>Text to Video</span> option above. Thank you for your patience!
+                  </span>
+                </div>
+              </div>
+            )}
           </>
         }
         wide={true}
