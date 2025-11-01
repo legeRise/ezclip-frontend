@@ -40,11 +40,12 @@ const Header = ({ isAuthenticated, setIsAuthenticated }) => {
             {isAuthenticated ? (
               <>
                 <div className="flex flex-col gap-2 items-center md:flex-row md:gap-4">
-                  <Link to="/" className="cursor-pointer hover:underline" onClick={() => setIsMenuOpen(false)}>Home</Link>
-                  <Link to="/generate-video" className="cursor-pointer hover:underline" onClick={() => setIsMenuOpen(false)}>Generate Video</Link>
-                  <Link to="/my-creations" className="cursor-pointer hover:underline" onClick={() => setIsMenuOpen(false)}>My Creations</Link>
+                  <Link to="/" className="text-md cursor-pointer hover:underline" onClick={() => setIsMenuOpen(false)}>Home</Link>
+                  <Link to="/generate-video" className="text-md cursor-pointer hover:underline whitespace-nowrap" onClick={() => setIsMenuOpen(false)}>Generate</Link>
+                  <Link to="/my-creations" className="text-md cursor-pointer hover:underline  whitespace-nowrap" onClick={() => setIsMenuOpen(false)}>My Creations</Link>
+                  <Link to="/feedbacks" className="text-md cursor-pointer hover:underline whitespace-nowrap" onClick={() => setIsMenuOpen(false)}>Feedbacks</Link>
                 </div>
-              <div className="flex flex-col items-center md:flex-row md:gap-4">
+                <div className="flex flex-col items-center md:flex-row md:gap-4">
             <span
               className="inline-block align-middle bg-cyan-600 text-yellow-100 font-extrabold rounded-full px-3 py-1 text-sm shadow"
             >
@@ -57,6 +58,7 @@ const Header = ({ isAuthenticated, setIsAuthenticated }) => {
               <div className="flex flex-col items-center md:flex-row md:gap-4">
                 <Link to="/login" className="cursor-pointer hover:underline" onClick={() => setIsMenuOpen(false)}>Login</Link>
                 <Link to="/signup" className="cursor-pointer hover:underline" onClick={() => setIsMenuOpen(false)}>Signup</Link>
+                <Link to="/feedbacks" className="cursor-pointer hover:underline" onClick={() => setIsMenuOpen(false)}>Feedback</Link>
               </div>
             )}
           </div>

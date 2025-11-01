@@ -21,3 +21,14 @@ export async function getStyles() {
   const res = await api.get("/text2video/visual-styles/");
   return res.data;
 }
+
+export async function getFeedbackList(limit, offset) {
+  const params = {};
+
+  if (limit != null) params.limit = limit;
+  if (offset != null) params.offset = offset;
+
+  const res = await api.get("/text2video/list-feedbacks/", { params });
+  return res.data;
+}
+
