@@ -35,7 +35,7 @@ const GenerateVideoPage = () => {
         form={
           <>
             <InfoBanner />
-            <div className="flex justify-center mb-4 gap-2">
+            {/* <div className="flex justify-center mb-4 gap-2">
               <button
                 className={`px-4 py-2 rounded ${selectedForm === 'text2video' ? 'bg-yellow-200 font-bold' : 'bg-gray-100'}`}
                 onClick={() => setSelectedForm('text2video')}
@@ -48,7 +48,7 @@ const GenerateVideoPage = () => {
               >
                 Title to Video
               </button>
-            </div>
+            </div> */}
             {selectedForm === 'text2video' ? (
               <TextToVideoForm />
             ) : (
