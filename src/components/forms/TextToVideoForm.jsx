@@ -16,8 +16,8 @@ const TextToVideoForm = () => {
   const [styles, setStyles] = useState([]); // <-- Add state for styles
   const [selectedLanguage, setSelectedLanguage] = useState("");
   const [selectedVoice, setSelectedVoice] = useState("");
-  const [aspectRatio, setAspectRatio] = useState("landscape");
   const [style, setStyle] = useState("");
+  const [aspectRatio, setAspectRatio] = useState("landscape");
   const pollingRef = useRef();
 
   // Fetch styles on mount
@@ -27,7 +27,8 @@ const TextToVideoForm = () => {
         const data = await getStyles();
         setStyles(data || []); // Set styles from API response
         setStyle(data[0]?.name || ""); // Default to the first style
-      } catch (err) {
+      } catch (error) {
+        console.log(error.message)
         setStyles([]);
       }
     }
@@ -40,8 +41,9 @@ const TextToVideoForm = () => {
       try {
         const { data } = await api.get("/text2video/edge-tts/languages/");
         setLanguages(data.languages || []);
-      } catch (err) {
-        // ignore error
+      } catch (error) {
+         console.log(error.message)
+        setLanguages([]);
       }
     }
     fetchLanguages();
@@ -59,7 +61,8 @@ const TextToVideoForm = () => {
         const { data } = await api.get(`/text2video/edge-tts/voices/${selectedLanguage}/`);
         setVoices(data.voices || []);
         setSelectedVoice(""); // reset
-      } catch (err) {
+      } catch (error) {
+        console.log(error.message)
         setVoices([]);
       }
     }
@@ -81,25 +84,38 @@ const TextToVideoForm = () => {
     }
   };
 
-  // Polling for progress updates
+  // SSE for tracking generation progress
   useEffect(() => {
     if (!result?.tracker_id) return;
 
-    pollingRef.current = setInterval(async () => {
-      try {
-        const { data } = await api.get(`/text2video/track-generation/${result.tracker_id}/`);
-        setResult(prev => ({ ...prev, ...data }));
-        if (data.status.toUpperCase() === "COMPLETED") {
-          setText('');
-          clearInterval(pollingRef.current);
-        }
-      } catch (err) {
-        setError("Failed to fetch progress.");
-        clearInterval(pollingRef.current);
-      }
-    }, 5000);
+    const backendBaseUrl = import.meta.env.VITE_BACKEND_BASE_URL;
+    const tracker = new EventSource(
+      `${backendBaseUrl}/text2video/track-generation/${result.tracker_id}/`
+    );
 
-    return () => clearInterval(pollingRef.current);
+    tracker.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        setResult(prev => ({ ...prev, ...data }));
+        if (data.status && data.status.toUpperCase() === "COMPLETED") {
+          setText('');
+          tracker.close();
+        }
+      } catch (error) {
+        console.log(error);
+        setError("Failed to parse SSE data.");
+        tracker.close();
+      }
+    };
+
+    tracker.onerror = (err) => {
+      setError("SSE connection error.");
+      tracker.close();
+    };
+
+    return () => {
+      tracker.close();
+    };
   }, [result?.tracker_id]);
 
   return (
