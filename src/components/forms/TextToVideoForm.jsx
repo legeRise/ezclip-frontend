@@ -128,6 +128,7 @@ const TextToVideoForm = () => {
     };
 
     tracker.onerror = (err) => {
+      console.log("SSE error:", err);
       setError("SSE connection error.");
       tracker.close();
     };
