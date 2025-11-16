@@ -103,38 +103,47 @@ const TextToVideoForm = () => {
     }
   };
 
-  // SSE for tracking generation progress
+  // SSE for tracking generation progress with auto-reconnect
   useEffect(() => {
     if (!result?.tracker_id) return;
 
     const backendBaseUrl = import.meta.env.VITE_BACKEND_BASE_URL;
-    const tracker = new EventSource(
-      `${backendBaseUrl}/text2video/track-generation/${result.tracker_id}/`
-    );
+    let tracker;
+    let reconnectTimeout;
 
-    tracker.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        setResult(prev => ({ ...prev, ...data }));
-        if (data.status && data.status.toUpperCase() === "COMPLETED") {
-          setText('');
+    function connectSSE() {
+      tracker = new EventSource(
+        `${backendBaseUrl}/text2video/track-generation/${result.tracker_id}/`
+      );
+
+      tracker.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          setResult(prev => ({ ...prev, ...data }));
+          if (data.status && data.status.toUpperCase() === "COMPLETED") {
+            setText('');
+            tracker.close();
+          }
+        } catch (error) {
+          console.log(error);
+          setError("Failed to parse SSE data.");
           tracker.close();
         }
-      } catch (error) {
-        console.log(error);
-        setError("Failed to parse SSE data.");
-        tracker.close();
-      }
-    };
+      };
 
-    tracker.onerror = (err) => {
-      console.log("SSE error:", err);
-      setError("SSE connection error.");
-      tracker.close();
-    };
+      tracker.onerror = (err) => {
+        console.log("SSE error:", err);
+        setError("SSE connection error. Reconnecting...");
+        tracker.close();
+        reconnectTimeout = setTimeout(connectSSE, 3000); // Reconnect after 3 seconds
+      };
+    }
+
+    connectSSE();
 
     return () => {
-      tracker.close();
+      if (tracker) tracker.close();
+      if (reconnectTimeout) clearTimeout(reconnectTimeout);
     };
   }, [result?.tracker_id]);
 
