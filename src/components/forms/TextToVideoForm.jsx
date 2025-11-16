@@ -84,13 +84,20 @@ const TextToVideoForm = () => {
     setError(null);
     setResult(null);
     try {
-      const data = await generateVideoFromText(text, selectedLanguage, selectedVoice, aspectRatio, style);
-      setResult(data);
+      const response = await generateVideoFromText(text, selectedLanguage, selectedVoice, aspectRatio, style);
+      console.log("Generation started:", response);
+      setResult(response.data);
     } catch (error) {
-      await recordFeedbackonError(error.message);
-      setError(
-      "Something went wrong on our side. We've recorded the issue. Your video may still be generating, so please check the My Creations page after a few minutes."
-    );
+      if (error.status === 429) {
+        setError("You have reached the generation limit for today. Please try again tomorrow.");
+      }
+      else {
+    //   await recordFeedbackonError(error.message);
+    //   setError(
+    //   "Something went wrong on our side. We've recorded the issue. Your video may still be generating, so please check the My Creations page after a few minutes."
+    // );
+    setError(error.message)
+      }
     } finally {
       setLoading(false);
     }

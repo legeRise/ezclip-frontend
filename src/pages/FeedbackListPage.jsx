@@ -11,18 +11,27 @@ const FeedbackListPage = () => {
 
   // Fetch feedbacks (initial or paginated)
   const fetchFeedbacks = useCallback(async (url = null) => {
+    console.log("Fetching feedbacks from:", url || "initial load");
     setLoading(true);
     try {
-      let data;
+      let response;
       if (url) {
+        console.log("in the if part");
         const res = await fetch(url);
-        data = await res.json();
+        response = await res.json();
+        console.log("response data:", response,' using raw fetch');
+        setFeedbacks(prev => [...prev, ...(response.results || [])]);
+        setNextUrl(response.next);
       } else {
-        data = await getFeedbackList(10, 0); // initial load
+        console.log("in the else part");
+        response = await getFeedbackList(10, 0); // initial load
+        console.log("response data:", response,' using service function');
+        setFeedbacks(prev => [...prev, ...(response.data.results || [])]);
+        setNextUrl(response.data.next);
       }
-      setFeedbacks(prev => [...prev, ...(data.results || [])]);
-      setNextUrl(data.next);
+      
     } catch (error) {
+      console.error("Error fetching feedbacks:", error);
       // Optionally handle error
     } finally {
       setLoading(false);

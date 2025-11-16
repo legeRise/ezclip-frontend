@@ -7,11 +7,23 @@ const api = axios.create({
   timeout: 10000, // 10 seconds
 });
 
+// --- Token helpers (optional, for parity with Expo) ---
+function getToken(key) {
+  return localStorage.getItem(key);
+}
+function setToken(key, value) {
+  localStorage.setItem(key, value);
+}
+function removeTokens() {
+  localStorage.removeItem("access");
+  localStorage.removeItem("refresh");
+}
+
 // Request interceptor: attach token unless skipAuth=true in config
 api.interceptors.request.use(
   (config) => {
     if (!config.skipAuth) {
-      const token = localStorage.getItem("access");
+      const token = getToken("access");
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
@@ -25,35 +37,40 @@ let isRefreshing = false;
 let failedQueue = [];
 
 const processQueue = (error, token = null) => {
-  failedQueue.forEach((prom) => {
-    if (error) {
-      prom.reject(error);
-    } else {
-      prom.resolve(token);
-    }
+  failedQueue.forEach((promise) => {
+    if (error) promise.reject(error);
+    else promise.resolve(token);
   });
   failedQueue = [];
 };
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => ({
+    status: response.status,
+    data: response.data,
+    message: response.data?.message || "Success",
+  }),
   async (error) => {
     const originalRequest = error.config;
 
     // Skip refresh logic for requests with skipAuth=true
     if (originalRequest?.skipAuth) {
-    return Promise.reject(new Error(parseApiError(error)));
+      return Promise.reject({
+        message: parseApiError(error),
+        status: error.response?.status,
+        data: error.response?.data,
+      });
     }
 
     if (error.response && error.response.status === 401 && !originalRequest._retry) {
-      const refreshToken = localStorage.getItem("refresh");
+      const refreshToken = getToken("refresh");
       if (refreshToken) {
         if (isRefreshing) {
-          return new Promise(function (resolve, reject) {
+          return new Promise((resolve, reject) => {
             failedQueue.push({ resolve, reject });
           })
             .then((token) => {
-              originalRequest.headers["Authorization"] = "Bearer " + token;
+              originalRequest.headers.Authorization = "Bearer " + token;
               return api(originalRequest);
             })
             .catch((err) => Promise.reject(err));
@@ -68,33 +85,42 @@ api.interceptors.response.use(
             { refresh: refreshToken }
           );
           const newAccess = res.data.access;
-          localStorage.setItem("access", newAccess);
-          api.defaults.headers.common["Authorization"] = "Bearer " + newAccess;
+          setToken("access", newAccess);
+          api.defaults.headers.common.Authorization = `Bearer ${newAccess}`;
           processQueue(null, newAccess);
-          originalRequest.headers["Authorization"] = "Bearer " + newAccess;
+
+          originalRequest.headers.Authorization = "Bearer " + newAccess;
           return api(originalRequest);
         } catch (refreshError) {
           processQueue(refreshError, null);
-          localStorage.removeItem("access");
-          localStorage.removeItem("refresh");
-          window.location.reload();
-          return Promise.reject(refreshError);
+          removeTokens();
+          // Optionally trigger a logout handler here
+          return Promise.reject({
+            message: parseApiError(refreshError),
+            status: refreshError.response?.status,
+            data: refreshError.response?.data,
+          });
         } finally {
           isRefreshing = false;
         }
       } else {
-        localStorage.removeItem("access");
-        localStorage.removeItem("refresh");
-        window.location.reload();
+        removeTokens();
+        // Optionally trigger a logout handler here
+        return Promise.reject({
+          message: parseApiError(error),
+          status: error.response?.status,
+          data: error.response?.data,
+        });
       }
     }
 
-    // Use the parser for all other errors
-    return Promise.reject(new Error(parseApiError(error)));
+    return Promise.reject({
+      message: parseApiError(error),
+      status: error.response?.status,
+      data: error.response?.data,
+    });
   }
 );
-
-
 
 function parseApiError(error) {
   const data = error.response?.data;
@@ -111,3 +137,4 @@ function parseApiError(error) {
 }
 
 export default api;
+export { getToken, setToken, removeTokens };

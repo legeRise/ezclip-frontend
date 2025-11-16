@@ -8,7 +8,7 @@ export async function generateVideoFromText(text, language, voice, resolution, s
   if (style) payload.style = style;
 
   const res = await api.post("/text2video/start-generation/", payload);
-  return res.data;
+  return res;
 }
 
 export async function recordFeedback(comment) {
@@ -29,6 +29,6 @@ export async function getFeedbackList(limit, offset) {
   if (offset != null) params.offset = offset;
 
   const res = await api.get("/text2video/list-feedbacks/", { params });
-  return res.data;
+  return res;
 }
 
