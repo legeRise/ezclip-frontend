@@ -10,6 +10,9 @@ const TextToVideoForm = () => {
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [warning, setWarning] = useState(null);
+  const [success, setSuccess] = useState(null);
+  const [info, setInfo] = useState(null);
   const [result, setResult] = useState(null);
   const [languages, setLanguages] = useState([]);
   const [voices, setVoices] = useState([]);
@@ -103,18 +106,28 @@ const TextToVideoForm = () => {
     }
   };
 
-  // SSE for tracking generation progress with auto-reconnect
+  // SSE for tracking generation progress with auto-reconnect and user feedback
   useEffect(() => {
     if (!result?.tracker_id) return;
 
     const backendBaseUrl = import.meta.env.VITE_BACKEND_BASE_URL;
     let tracker;
     let reconnectTimeout;
+    let connectedTimeout;
 
-    function connectSSE() {
+    function connectSSE(isReconnect = false) {
       tracker = new EventSource(
         `${backendBaseUrl}/text2video/track-generation/${result.tracker_id}/`
       );
+
+      tracker.onopen = () => {
+        if (isReconnect) {
+          setSuccess("Live progress reconnected!");
+          // Hide the success message after 2 seconds
+          connectedTimeout = setTimeout(() => setSuccess(null), 2000);
+        }
+        setWarning(null); // Clear any warning
+      };
 
       tracker.onmessage = (event) => {
         try {
@@ -133,9 +146,9 @@ const TextToVideoForm = () => {
 
       tracker.onerror = (err) => {
         console.log("SSE error:", err);
-        setError("SSE connection error. Reconnecting...");
+        setWarning("Live progress updates were interrupted. Attempting to reconnect...");
         tracker.close();
-        reconnectTimeout = setTimeout(connectSSE, 3000); // Reconnect after 3 seconds
+        reconnectTimeout = setTimeout(() => connectSSE(true), 3000); // Reconnect after 3 seconds
       };
     }
 
@@ -144,6 +157,7 @@ const TextToVideoForm = () => {
     return () => {
       if (tracker) tracker.close();
       if (reconnectTimeout) clearTimeout(reconnectTimeout);
+      if (connectedTimeout) clearTimeout(connectedTimeout);
     };
   }, [result?.tracker_id]);
 
@@ -151,6 +165,9 @@ const TextToVideoForm = () => {
     <form className="flex flex-col justify-center" onSubmit={handleSubmit}>
       {result && <ProgressBar progress={result?.progress || 0} statusMessage={result?.status_message || ""} />}
       {error && <StatusMessage message={error} type="error" />}
+      {warning && <StatusMessage message={warning} type="warning" />}
+      {success && <StatusMessage message={success} type="success" />}
+      {info && <StatusMessage message={info} type="info" />}
       <div className="flex flex-col md:flex-row gap-2 mb-2">
         <div className="flex-1 min-w-0">
           <select
