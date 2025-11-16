@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Button from '../ui/Button';
 import ProgressBar from '../ui/ProgressBar';
-import { generateVideoFromText, getStyles } from '../../services/textToVideoService';
+import { generateVideoFromText, getStyles, recordFeedback } from '../../services/textToVideoService';
 import api from '../../services/api';
 import StatusMessage from "../ui/StatusMessage";
 // import BannerAd from '../ads/BannerAd';
@@ -19,6 +19,15 @@ const TextToVideoForm = () => {
   const [style, setStyle] = useState("");
   const [aspectRatio, setAspectRatio] = useState("landscape");
   const pollingRef = useRef();
+
+
+  async function recordFeedbackonError(message) {
+    try {
+      await recordFeedback(`[AUTOMATED FEEDBACK RECORDED] Error during video generation: ${message}`);
+    } catch (error) {
+      console.log("Failed to record feedback:", error.message);
+    }
+  }
 
   // Fetch styles on mount
   useEffect(() => {
@@ -77,8 +86,11 @@ const TextToVideoForm = () => {
     try {
       const data = await generateVideoFromText(text, selectedLanguage, selectedVoice, aspectRatio, style);
       setResult(data);
-    } catch (err) {
-      setError(err.message);
+    } catch (error) {
+      await recordFeedbackonError(error.message);
+      setError(
+      "Something went wrong on our side. We've recorded the issue. Your video may still be generating, so please check the My Creations page after a few minutes."
+    );
     } finally {
       setLoading(false);
     }

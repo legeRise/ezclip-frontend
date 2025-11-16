@@ -1,23 +1,16 @@
 import React, { useState } from 'react'
 import TextToVideoForm from '../components/forms/TextToVideoForm'
-import TitleToVideoForm from '../components/forms/TitleToVideoForm'
 import FormLayout from '../Layouts/FormLayout'
 import FloatingFeedback from '../components/FloatingFeedback'
 
 const InfoBanner = () => (
-  <div className="max-w-xl mx-auto mb-3 px-3 py-2 rounded-lg bg-blue-50 border border-blue-200 shadow-sm text-blue-900 text-xs font-medium flex flex-col gap-1">
+  <div className="max-w-xl mx-auto mb-3 px-3 py-2 rounded-lg bg-yellow-50 border border-yellow-200 shadow-sm text-yellow-900 text-xs font-medium flex flex-col gap-1">
     <div>
-      ⏳ If your video is taking time, check back after a few minutes by visiting your{' '}
-      <a href="/#/my-creations" className="font-semibold underline text-blue-700 hover:text-blue-900">My Creations</a> page.
+      ⚠️ If you see any <span className="text-red-700 font-bold">Error</span> while the video is generating, please be patient and check{' '}
+      <a href="/#/my-creations" className="font-semibold underline text-green-700 hover:text-blue-900">My Creations</a>{' '}
+      after a few minutes.
     </div>
-    <div>
-      ⚠️ If you see <span className="font-semibold">"Failed to fetch progress"</span>, do the same, check {' '}
-      <a href="/#/my-creations" className="font-semibold underline text-blue-700 hover:text-blue-900">My Creations</a> page after a few minutes.    </div>
-    <div>
-      ❌ The Status shows 
-      <span className="px-1 mx-1 py-1 rounded text-xs font-semibold bg-yellow-100 text-yellow-700">in progress </span>
-       even after 10 or more minutes? It's likely failed — please mention it in your feedback.
-    </div>
+
   </div>
 );
 
