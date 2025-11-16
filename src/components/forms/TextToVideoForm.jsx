@@ -54,7 +54,7 @@ const TextToVideoForm = () => {
         const { data } = await api.get("/text2video/edge-tts/languages/");
         setLanguages(data.languages || []);
       } catch (error) {
-         console.log(error.message)
+        console.log(error.message)
         setLanguages([]);
       }
     }
@@ -177,7 +177,7 @@ const TextToVideoForm = () => {
           >
             <option value="" disabled>Select Language</option>
             {languages.map(lang => (
-              <option key={lang} value={lang} className="truncate">{lang}</option>
+              <option key={lang.code} value={lang.code} className="truncate">{lang.name}</option>
             ))}
           </select>
         </div>
