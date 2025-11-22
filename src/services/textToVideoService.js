@@ -1,11 +1,12 @@
 import api from "./api";
 
-export async function generateVideoFromText(text, language, voice, resolution, style) {
+export async function generateVideoFromText(text, language, voice, resolution, style, template) {
   const payload = { script: text };
   if (language) payload.language = language;
   if (voice) payload.voice = voice;
   if (resolution) payload.resolution = resolution;
   if (style) payload.style = style;
+  if (template) payload.template = template;
 
   const res = await api.post("/text2video/start-generation/", payload);
   return res;
@@ -19,6 +20,11 @@ export async function recordFeedback(comment) {
 
 export async function getStyles() {
   const res = await api.get("/text2video/visual-styles/");
+  return res.data;
+}
+
+export async function getTemplates() {
+  const res = await api.get("/text2video/story-templates/");
   return res.data;
 }
 

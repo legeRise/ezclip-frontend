@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Button from '../ui/Button';
 import ProgressBar from '../ui/ProgressBar';
-import { generateVideoFromText, getStyles, recordFeedback } from '../../services/textToVideoService';
+import { generateVideoFromText, getStyles, getTemplates, recordFeedback } from '../../services/textToVideoService';
 import api from '../../services/api';
 import StatusMessage from "../ui/StatusMessage";
 // import BannerAd from '../ads/BannerAd';
@@ -16,11 +16,14 @@ const TextToVideoForm = () => {
   const [result, setResult] = useState(null);
   const [languages, setLanguages] = useState([]);
   const [voices, setVoices] = useState([]);
-  const [styles, setStyles] = useState([]); // <-- Add state for styles
+  const [styles, setStyles] = useState([]);
   const [selectedLanguage, setSelectedLanguage] = useState("");
   const [selectedVoice, setSelectedVoice] = useState("");
   const [style, setStyle] = useState("");
   const [aspectRatio, setAspectRatio] = useState("landscape");
+  const [templates, setTemplates] = useState([]);
+  const [selectedTemplate, setSelectedTemplate] = useState("");
+  const [showAdvanced, setShowAdvanced] = useState(false); // NEW: advanced dropdown toggle
   const pollingRef = useRef();
 
 
@@ -45,6 +48,21 @@ const TextToVideoForm = () => {
       }
     }
     fetchStyles();
+  }, []);
+
+  // Fetch templates on mount
+  useEffect(() => {
+    async function fetchTemplates() {
+      try {
+        const data = await getTemplates();
+        setTemplates(data || []);
+        setSelectedTemplate(data[0]?.name || ""); // Default to the first template
+      } catch (error) {
+        console.log(error.message);
+        setTemplates([]);
+      }
+    }
+    fetchTemplates();
   }, []);
 
   // Fetch languages on mount
@@ -87,7 +105,7 @@ const TextToVideoForm = () => {
     setError(null);
     setResult(null);
     try {
-      const response = await generateVideoFromText(text, selectedLanguage, selectedVoice, aspectRatio, style);
+      const response = await generateVideoFromText(text, selectedLanguage, selectedVoice, aspectRatio, style, selectedTemplate);
       console.log("Generation started:", response);
       setResult(response.data);
     } catch (error) {
@@ -168,56 +186,96 @@ const TextToVideoForm = () => {
       {warning && <StatusMessage message={warning} type="warning" />}
       {success && <StatusMessage message={success} type="success" />}
       {info && <StatusMessage message={info} type="info" />}
-      <div className="flex flex-col md:flex-row gap-2 mb-2">
-        <div className="flex-1 min-w-0">
-          <select
-            className="border rounded-lg p-2 w-full bg-white text-gray-800 focus:ring-2 focus:ring-purple-300 transition"
-            value={selectedLanguage}
-            onChange={e => setSelectedLanguage(e.target.value)}
-          >
-            <option value="" disabled>Select Language</option>
-            {languages.map(lang => (
-              <option key={lang.code} value={lang.code} className="truncate">{lang.name}</option>
-            ))}
-          </select>
+      {/* Basic Options */}
+      <div className="bg-white rounded-xl shadow p-4 mb-2 border border-gray-200">
+        <div className="flex flex-col md:flex-row gap-2">
+          <div className="flex-1 min-w-0">
+            <label className="block text-sm text-gray-600 mb-1" htmlFor="language-select">Language</label>
+            <select
+              id="language-select"
+              className="border rounded-lg p-2 w-full bg-white text-gray-800 focus:ring-2 focus:ring-purple-300 transition"
+              value={selectedLanguage}
+              onChange={e => setSelectedLanguage(e.target.value)}
+            >
+              <option value="" disabled>Select Language</option>
+              {languages.map(lang => (
+                <option key={lang.code} value={lang.code} className="truncate">{lang.name}</option>
+              ))}
+            </select>
+          </div>
+          <div className="flex-1 min-w-0">
+            <label className="block text-sm text-gray-600 mb-1" htmlFor="voice-select">Voice</label>
+            <select
+              id="voice-select"
+              className="border rounded-lg p-2 w-full bg-white text-gray-800 focus:ring-2 focus:ring-purple-300 transition"
+              value={selectedVoice}
+              onChange={e => setSelectedVoice(e.target.value)}
+              disabled={!voices.length}
+            >
+              <option value="" disabled>Select Voice</option>
+              {voices.map(voice => (
+                <option key={voice} value={voice} className="truncate">{voice}</option>
+              ))}
+            </select>
+          </div>
         </div>
-        <div className="flex-1 min-w-0">
-          <select
-            className="border rounded-lg p-2 w-full bg-white text-gray-800 focus:ring-2 focus:ring-purple-300 transition"
-            value={selectedVoice}
-            onChange={e => setSelectedVoice(e.target.value)}
-            disabled={!voices.length}
-          >
-            <option value="" disabled>Select Voice</option>
-            {voices.map(voice => (
-              <option key={voice} value={voice} className="truncate">{voice}</option>
-            ))}
-          </select>
-        </div>
-        <div className="flex-1 min-w-0">
-          <select
-            className="border rounded-lg p-2 w-full bg-white text-gray-800 focus:ring-2 focus:ring-purple-300 transition"
-            value={aspectRatio}
-            onChange={(e) => setAspectRatio(e.target.value)}
-          >
-            <option value="" disabled>Select Aspect Ratio</option>
-            <option value="landscape">LandScape (16:9)</option>
-            <option value="portrait">Portrait (9:16)</option>
-          </select>
-        </div>
-        <div className="flex-1 min-w-0">
-          <select
-            className="border rounded-lg p-2 w-full bg-white text-gray-800 focus:ring-2 focus:ring-purple-300 transition"
-            value={style}
-            onChange={e => setStyle(e.target.value)}
-          >
-            <option value="" disabled>Select Style</option>
-            {styles.map(s => (
-              <option key={s.name} value={s.name}>{s.display_name}</option>
-            ))}
-          </select>
-        </div>
+        <button
+          type="button"
+          className="mt-4 px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition font-medium w-full"
+          onClick={() => setShowAdvanced(v => !v)}
+        >
+          {showAdvanced ? "Hide Advanced Customization" : "Show Advanced Customization"}
+        </button>
       </div>
+      {/* Advanced Options */}
+      {showAdvanced && (
+        <div className="bg-gray-50 rounded-xl shadow p-4 mb-2 border border-gray-200 animate-fade-in">
+          <div className="font-semibold text-gray-700 mb-2">Advanced Options</div>
+          <div className="flex flex-col md:flex-row gap-2">
+            <div className="flex-1 min-w-0">
+              <label className="block text-sm text-gray-600 mb-1" htmlFor="aspect-select">Aspect Ratio</label>
+              <select
+                id="aspect-select"
+                className="border rounded-lg p-2 w-full bg-white text-gray-800 focus:ring-2 focus:ring-purple-300 transition"
+                value={aspectRatio}
+                onChange={(e) => setAspectRatio(e.target.value)}
+              >
+                <option value="" disabled>Select Aspect Ratio</option>
+                <option value="landscape">LandScape (16:9)</option>
+                <option value="portrait">Portrait (9:16)</option>
+              </select>
+            </div>
+            <div className="flex-1 min-w-0">
+              <label className="block text-sm text-gray-600 mb-1" htmlFor="style-select">Style</label>
+              <select
+                id="style-select"
+                className="border rounded-lg p-2 w-full bg-white text-gray-800 focus:ring-2 focus:ring-purple-300 transition"
+                value={style}
+                onChange={e => setStyle(e.target.value)}
+              >
+                <option value="" disabled>Select Style</option>
+                {styles.map(s => (
+                  <option key={s.name} value={s.name}>{s.display_name}</option>
+                ))}
+              </select>
+            </div>
+            <div className="flex-1 min-w-0">
+              <label className="block text-sm text-gray-600 mb-1" htmlFor="template-select">Template</label>
+              <select
+                id="template-select"
+                className="border rounded-lg p-2 w-full bg-white text-gray-800 focus:ring-2 focus:ring-purple-300 transition"
+                value={selectedTemplate}
+                onChange={e => setSelectedTemplate(e.target.value)}
+              >
+                <option value="" disabled>Select Template</option>
+                {templates.map(t => (
+                  <option key={t.name} value={t.name}>{t.display_name || t.name}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+      )}
       <textarea
         id="story-input"
         maxLength={2000}
