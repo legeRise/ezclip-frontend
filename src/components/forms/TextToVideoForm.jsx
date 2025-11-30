@@ -24,6 +24,7 @@ const TextToVideoForm = () => {
   const [templates, setTemplates] = useState([]);
   const [selectedTemplate, setSelectedTemplate] = useState("");
   const [showAdvanced, setShowAdvanced] = useState(false); // NEW: advanced dropdown toggle
+  const [experimental, setExperimental] = useState(false);
   const pollingRef = useRef();
 
 
@@ -105,7 +106,7 @@ const TextToVideoForm = () => {
     setError(null);
     setResult(null);
     try {
-      const response = await generateVideoFromText(text, selectedLanguage, selectedVoice, aspectRatio, style, selectedTemplate);
+      const response = await generateVideoFromText(text, selectedLanguage, selectedVoice, aspectRatio, style, selectedTemplate, experimental);
       console.log("Generation started:", response);
       setResult(response.data);
     } catch (error) {
@@ -218,7 +219,21 @@ const TextToVideoForm = () => {
               ))}
             </select>
           </div>
+          <div className="flex items-center min-w-0 pt-6 md:pt-0 md:pl-4">
+            <input
+              id="experimental-checkbox"
+              type="checkbox"
+              checked={experimental}
+              onChange={e => setExperimental(e.target.checked)}
+              className="h-4 w-4 text-purple-600 focus:ring-purple-400 border-gray-300 rounded"
+            />
+            <label htmlFor="experimental-checkbox" className="ml-2 text-sm text-gray-700 font-medium">
+              Experimental
+            </label>
+          </div>
         </div>
+
+
         <button
           type="button"
           className="mt-4 px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition font-medium w-full"
