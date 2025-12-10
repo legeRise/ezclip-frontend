@@ -1,5 +1,38 @@
 import React, { useState } from 'react';
-import Button from '../ui/Button';
+import { Button } from '@/components/shadcn/button';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/shadcn/card';
+import { Badge } from '@/components/shadcn/badge';
+import { 
+  Check, 
+  Copy, 
+  Download, 
+  ChevronDown, 
+  ChevronUp, 
+  Clock,
+  CheckCircle2,
+  XCircle,
+  Loader2,
+  AlertTriangle
+} from 'lucide-react';
+
+const StatusBadge = ({ status }) => {
+  const statusConfig = {
+    completed: { variant: 'default', icon: CheckCircle2, className: 'bg-green-100 text-green-700 hover:bg-green-100' },
+    failed: { variant: 'destructive', icon: XCircle, className: '' },
+    processing: { variant: 'secondary', icon: Loader2, className: 'bg-yellow-100 text-yellow-700 hover:bg-yellow-100' },
+    pending: { variant: 'secondary', icon: Clock, className: 'bg-yellow-100 text-yellow-700 hover:bg-yellow-100' }
+  };
+  
+  const config = statusConfig[status] || statusConfig.pending;
+  const Icon = config.icon;
+  
+  return (
+    <Badge variant={config.variant} className={config.className}>
+      <Icon className={`h-3 w-3 mr-1 ${status === 'processing' ? 'animate-spin' : ''}`} />
+      {status}
+    </Badge>
+  );
+};
 
 const TextToVideoCreationCard = ({ creation }) => {
   const [showScript, setShowScript] = useState(false);
@@ -11,83 +44,85 @@ const TextToVideoCreationCard = ({ creation }) => {
     setTimeout(() => setCopied(false), 1200);
   };
 
-  const handleDownloadClick = (e) => {
-    // No ad redirect, allow direct download
-  };
-
   return (
-    <div className="border rounded-xl p-6 bg-white shadow-lg hover:shadow-2xl transition-shadow duration-200 flex flex-col gap-3">
-      <div className="flex items-center justify-between">
-        <span className="text-lg font-bold text-gray-800">Status:</span>
-        <span
-          className={`px-2 py-1 rounded text-xs font-semibold ${creation.status === 'completed'
-              ? 'bg-green-100 text-green-700'
-              : creation.status === 'failed'
-                ? 'bg-red-100 text-red-700'
-                : 'bg-yellow-100 text-yellow-700'
-            }`}
-        >
-          {creation.status}
-        </span>
-      </div>
-      <div>
-        <button
-          className="text-blue-600 underline text-sm focus:outline-none"
-          onClick={() => setShowScript((s) => !s)}
-        >
-          {showScript ? 'Hide Script' : 'Show Script'}
-        </button>
-        {showScript && (
-          <div className="relative mt-2">
-            <pre className="bg-gray-100 rounded p-2 text-gray-700 max-h-40 overflow-y-auto whitespace-pre-wrap break-words text-sm">
-              {creation.script}
-            </pre>
-            <Button
-              className="absolute right-2 top-2 md:right-5 p-0"
-              icon={
-                <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-200">
-                  {copied ? (
-                    <i className="fas fa-check text-green-700"></i>
-                  ) : (
-                    <i className="fas fa-copy"></i>
-                  )}
-                </span>
-              }
-              onClick={handleCopy}
-              aria-label="Copy script"
-            />
-          </div>
-        )}
-      </div>
-      <div className="flex items-center gap-2 text-gray-500 text-sm">
-        <span className="font-medium">Generated:</span>
-        <span>{creation.generated_at}</span>
-      </div>
-      <div>
+    <Card className="hover:shadow-lg transition-shadow duration-200">
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-medium text-muted-foreground">Status</span>
+          <StatusBadge status={creation.status} />
+        </div>
+      </CardHeader>
+      
+      <CardContent className="space-y-3">
+        {/* Script Toggle */}
+        <div>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="px-0 text-primary hover:text-primary"
+            onClick={() => setShowScript((s) => !s)}
+          >
+            {showScript ? (
+              <>Hide Script <ChevronUp className="ml-1 h-4 w-4" /></>
+            ) : (
+              <>Show Script <ChevronDown className="ml-1 h-4 w-4" /></>
+            )}
+          </Button>
+          
+          {showScript && (
+            <div className="relative mt-2">
+              <pre className="bg-muted rounded-lg p-3 text-sm text-foreground max-h-40 overflow-y-auto whitespace-pre-wrap break-words">
+                {creation.script}
+              </pre>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-2 top-2 h-8 w-8"
+                onClick={handleCopy}
+                aria-label="Copy script"
+              >
+                {copied ? (
+                  <Check className="h-4 w-4 text-green-600" />
+                ) : (
+                  <Copy className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
+          )}
+        </div>
+
+        {/* Generated Time */}
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Clock className="h-4 w-4" />
+          <span>{creation.generated_at}</span>
+        </div>
+      </CardContent>
+
+      <CardFooter>
         {creation.is_video_available ? (
-          <div className="flex justify-center mt-2">
-            <a
-              href={creation.video_url}
-              download
-              rel="noopener noreferrer"
-              onClick={handleDownloadClick}
-            >
-              <Button text="Download" type="button" />
-            </a>
-          </div>
+          <a
+            href={creation.video_url}
+            download
+            rel="noopener noreferrer"
+            className="w-full"
+          >
+            <Button variant="outline" className="w-full gap-2">
+              <Download className="h-4 w-4" />
+              Download
+            </Button>
+          </a>
         ) : creation.status === 'completed' ? (
-          <div className="flex justify-end">
-            <span className='bg-red-100 text-red-700 font-bold px-2 rounded text-sm'>
-              Expired
-            </span>
-          </div>
+          <Badge variant="destructive" className="ml-auto">
+            <AlertTriangle className="h-3 w-3 mr-1" />
+            Expired
+          </Badge>
         ) : (
-          <span className="text-gray-400 italic">
-            Video not available yet.
+          <span className="text-sm text-muted-foreground italic">
+            Video not available yet
           </span>
         )}
-      </div>
-    </div>
+      </CardFooter>
+    </Card>
   );
 };
 
@@ -100,71 +135,68 @@ const TitleToVideoCreationCard = ({ creation }) => {
     setTimeout(() => setCopied(false), 1200);
   };
 
-  const handleDownloadClick = (e) => {
-    // No ad redirect, allow direct download
-  };
-
   return (
-    <div className="border rounded-xl p-6 bg-white shadow-lg hover:shadow-2xl transition-shadow duration-200 flex flex-col gap-3">
-      <div className="flex items-center justify-between">
-        <span className="text-lg font-bold text-gray-800">Status:</span>
-        <span
-          className={`px-2 py-1 rounded text-xs font-semibold ${creation.status === 'completed'
-              ? 'bg-green-100 text-green-700'
-              : creation.status === 'failed'
-                ? 'bg-red-100 text-red-700'
-                : 'bg-yellow-100 text-yellow-700'
-            }`}
-        >
-          {creation.status}
-        </span>
-      </div>
-      <div className="flex items-center gap-2 mt-2">
-        <span className="font-mono text-green-700 text-base bg-blue-50 px-2 py-1 rounded break-words flex-1">{creation.title}</span>
-        <Button
-          className="p-0"
-          icon={
-            <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-200">
-              {copied ? (
-                <i className="fas fa-check text-green-700"></i>
-              ) : (
-                <i className="fas fa-copy"></i>
-              )}
-            </span>
-          }
-          onClick={handleCopy}
-          aria-label="Copy title"
-        />
-      </div>
-      <div className="flex items-center gap-2 text-gray-500 text-sm">
-        <span className="font-medium">Generated:</span>
-        <span>{creation.generated_at}</span>
-      </div>
-      <div>
+    <Card className="hover:shadow-lg transition-shadow duration-200">
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-medium text-muted-foreground">Status</span>
+          <StatusBadge status={creation.status} />
+        </div>
+      </CardHeader>
+      
+      <CardContent className="space-y-3">
+        {/* Title */}
+        <div className="flex items-center gap-2">
+          <span className="font-mono text-sm bg-muted px-3 py-2 rounded-lg break-words flex-1">
+            {creation.title}
+          </span>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 flex-shrink-0"
+            onClick={handleCopy}
+            aria-label="Copy title"
+          >
+            {copied ? (
+              <Check className="h-4 w-4 text-green-600" />
+            ) : (
+              <Copy className="h-4 w-4" />
+            )}
+          </Button>
+        </div>
+
+        {/* Generated Time */}
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Clock className="h-4 w-4" />
+          <span>{creation.generated_at}</span>
+        </div>
+      </CardContent>
+
+      <CardFooter>
         {creation.is_video_available ? (
-          <div className="flex justify-center mt-2">
-            <a
-              href={creation.video_url}
-              download
-              rel="noopener noreferrer"
-              onClick={handleDownloadClick}
-            >
-              <Button text="Download" type="button" />
-            </a>
-          </div>
+          <a
+            href={creation.video_url}
+            download
+            rel="noopener noreferrer"
+            className="w-full"
+          >
+            <Button variant="outline" className="w-full gap-2">
+              <Download className="h-4 w-4" />
+              Download
+            </Button>
+          </a>
         ) : creation.status === 'completed' ? (
-          <div className="flex justify-end">
-            <span className='bg-red-100 text-red-700 font-bold px-2 rounded text-sm'>
-              Expired
-            </span>
-          </div>
+          <Badge variant="destructive" className="ml-auto">
+            <AlertTriangle className="h-3 w-3 mr-1" />
+            Expired
+          </Badge>
         ) : (
-          <span className="text-gray-400 italic">
-            Video not available yet.
+          <span className="text-sm text-muted-foreground italic">
+            Video not available yet
           </span>
         )}
-      </div>
-    </div>
+      </CardFooter>
+    </Card>
   );
 };
 

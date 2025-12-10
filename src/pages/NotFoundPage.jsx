@@ -1,19 +1,31 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import Button from "../components/ui/Button";
+import { Button } from "@/components/shadcn/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/shadcn/card";
+import { Home, AlertCircle } from "lucide-react";
 
 const NotFoundPage = () => (
-  <div className="min-h-screen flex flex-col items-center justify-center bg-green-200 px-4 py-8">
-    <div className="bg-white p-8 md:p-10 rounded-xl shadow-lg flex flex-col items-center max-w-md w-full">
-      <span className="text-6xl font-bold text-gray-400 mb-4">404</span>
-      <h1 className="text-xl font-semibold mb-2 text-gray-700">This page could not be found</h1>
-      <p className="text-gray-500 mb-6 text-center">
-        Sorry, the page you’re looking for doesn’t exist or has been moved.
-      </p>
-      <Link to="/" className="w-full flex justify-center">
-        <Button text="Go to Home" />
-      </Link>
-    </div>
+  <div className="min-h-screen flex items-center justify-center bg-background px-4">
+    <Card className="w-full max-w-md text-center">
+      <CardHeader>
+        <div className="mx-auto w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
+          <AlertCircle className="w-8 h-8 text-destructive" />
+        </div>
+        <CardTitle className="text-6xl font-bold text-muted-foreground">404</CardTitle>
+        <CardDescription className="text-lg">Page Not Found</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <p className="text-muted-foreground">
+          Sorry, the page you're looking for doesn't exist or has been moved.
+        </p>
+        <Link to="/">
+          <Button className="w-full gap-2">
+            <Home className="w-4 h-4" />
+            Go to Home
+          </Button>
+        </Link>
+      </CardContent>
+    </Card>
   </div>
 );
 

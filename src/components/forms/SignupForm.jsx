@@ -1,10 +1,14 @@
 import React, { useState } from 'react'
-import Button from '../ui/Button'
 import { signup, resendActivationEmail } from '../../services/authService';
-import StatusMessage from '../ui/StatusMessage';
 import { useNavigate } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import { useGoogleSignIn } from '../google/useGoogleSignIn';
+import { Button } from '@/components/shadcn/button';
+import { Input } from '@/components/shadcn/input';
+import { Label } from '@/components/shadcn/label';
+import { Alert, AlertDescription } from '@/components/shadcn/alert';
+import { Separator } from '@/components/shadcn/separator';
+import { Loader2, AlertCircle, CheckCircle2, Mail } from 'lucide-react';
 
 const SignupForm = (props) => {
   const [email, setEmail] = useState("");
@@ -14,9 +18,9 @@ const SignupForm = (props) => {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [resendStatus, setResendStatus] = useState(null);
+  const [resendLoading, setResendLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Use the centralized Google sign-in hook
   const {
     handleGoogleSignIn,
     loading: googleLoading,
@@ -26,71 +30,82 @@ const SignupForm = (props) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null); // Clear previous error important if next time the result becomes available
-    setResult(null); // Clear previous result 
-    
+    setError(null);
+    setResult(null);
 
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
-      setLoading(false);
       return;
     }
     if (password.length < 8) {
       setError("Password must be at least 8 characters long.");
-      setLoading(false);
       return;
     }
 
-        // Call the signup function from authService
     setLoading(true);
-        try {
-          const data = await signup(email, password, confirmPassword);
-          setResult(data);
-        } catch (err) {
-
-          setError(err.message);
-        } finally {
-          setLoading(false);
-        }
+    try {
+      const data = await signup(email, password, confirmPassword);
+      setResult(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   }
 
   const handleResendActivation = async () => {
     setResendStatus(null);
+    setResendLoading(true);
     try {
       await resendActivationEmail(email);
       setResendStatus("Activation email resent! Please check your inbox.");
     } catch (err) {
       setResendStatus("Could not resend activation email.");
+    } finally {
+      setResendLoading(false);
     }
   };
     
-  
   return (
-    <form className="flex flex-col" onSubmit={handleSubmit}>
-      {error ? (
-        <>
-          <StatusMessage message={error} type="error" />
-          {error.toLowerCase().includes("email") && (
-            <div className="my-2 flex flex-col items-center">
-              <button
-                onClick={handleResendActivation}
-                type="button"
-                className="text-sm px-4 py-2 rounded bg-gray-100 hover:bg-gray-200 text-blue-600 border border-gray-200 transition"
-              >
-                Resend Activation Email
-              </button>
-              {resendStatus && (
-                <span className="text-xs text-gray-500 my-1">{resendStatus}</span>
-              )}
-            </div>
-          )}
-        </>
-      ) : result && (
-        <StatusMessage message={result?.message || "Signup successful! Please Check Your Inbox for Verification Link"} type="success" />
+    <form className="space-y-4" onSubmit={handleSubmit}>
+      {error && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            {error}
+            {error.toLowerCase().includes("email") && (
+              <div className="mt-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleResendActivation}
+                  disabled={resendLoading}
+                >
+                  {resendLoading && <Loader2 className="mr-2 h-3 w-3 animate-spin" />}
+                  <Mail className="mr-2 h-3 w-3" />
+                  Resend Activation Email
+                </Button>
+                {resendStatus && (
+                  <p className="text-xs mt-1 text-muted-foreground">{resendStatus}</p>
+                )}
+              </div>
+            )}
+          </AlertDescription>
+        </Alert>
+      )}
+      
+      {result && (
+        <Alert className="border-primary/50 bg-primary/10">
+          <CheckCircle2 className="h-4 w-4 text-primary" />
+          <AlertDescription className="text-primary">
+            {result?.message || "Signup successful! Please check your inbox for the verification link."}
+          </AlertDescription>
+        </Alert>
       )}
 
       {/* Google Sign-In Button */}
-      <div className='flex justify-center items-center mb-4'>
+      <div className="flex justify-center">
         <GoogleLogin
           onSuccess={credentialResponse => {
             handleGoogleSignIn(credentialResponse);
@@ -101,42 +116,69 @@ const SignupForm = (props) => {
         />
       </div>
 
-      <input
-        type="email"
-        maxLength={150}
-        placeholder="Email"
-        className="w-full p-3 border border-gray-300 rounded-xl mb-2"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-     <input
-        type="password"
-        maxLength={150}
-        placeholder="Password"
-        className="w-full p-3 border border-gray-300 rounded-xl mb-2"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-     <input
-        type="password"
-        maxLength={150}
-        placeholder="Confirm Password"
-        className="w-full p-3 border border-gray-300 rounded-xl mb-2"
-        value={confirmPassword}
-        onChange={(e) => setConfirmPassword(e.target.value)}
-      />
-      <Button
-        type="submit"
-        text="Sign Up"
-        loading={loading}
-        disabled={loading}
-      />
-      {/* </div> */}
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <Separator className="w-full" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-card px-2 text-muted-foreground">Or continue with email</span>
+        </div>
+      </div>
 
-    <div className="mt-2 text-center">
-      Already a Member? Click to <span className='text-blue-400 cursor-pointer' onClick={() => navigate('/login')}>Login</span>
-    </div>
+      <div className="space-y-2">
+        <Label htmlFor="email">Email</Label>
+        <Input
+          id="email"
+          type="email"
+          maxLength={150}
+          placeholder="Enter your email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+      </div>
 
+      <div className="space-y-2">
+        <Label htmlFor="password">Password</Label>
+        <Input
+          id="password"
+          type="password"
+          maxLength={150}
+          placeholder="Create a password (min. 8 characters)"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="confirmPassword">Confirm Password</Label>
+        <Input
+          id="confirmPassword"
+          type="password"
+          maxLength={150}
+          placeholder="Confirm your password"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          required
+        />
+      </div>
+
+      <Button type="submit" className="w-full" disabled={loading}>
+        {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+        Sign Up
+      </Button>
+
+      <div className="text-center text-sm text-muted-foreground">
+        Already have an account?{' '}
+        <button
+          type="button"
+          className="text-primary hover:underline font-medium"
+          onClick={() => navigate('/login')}
+        >
+          Login
+        </button>
+      </div>
     </form>
   )
 }

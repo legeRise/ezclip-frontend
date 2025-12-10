@@ -5,7 +5,7 @@ import Footer from '../components/Footer';
 
 const MainLayout = (props) => {
   return (
-    <div className="flex flex-col min-h-screen bg-green-200">
+    <div className="flex flex-col min-h-screen bg-background">
       <Header
         isAuthenticated={props.isAuthenticated}
         setIsAuthenticated={props.setIsAuthenticated}

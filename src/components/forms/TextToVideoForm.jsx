@@ -1,10 +1,37 @@
 import React, { useState, useEffect, useRef } from "react";
-import Button from '../ui/Button';
-import ProgressBar from '../ui/ProgressBar';
 import { generateVideoFromText, getStyles, getTemplates, recordFeedback } from '../../services/textToVideoService';
 import api from '../../services/api';
-import StatusMessage from "../ui/StatusMessage";
-// import BannerAd from '../ads/BannerAd';
+import { Button } from '@/components/shadcn/button';
+import { Label } from '@/components/shadcn/label';
+import { Textarea } from '@/components/shadcn/textarea';
+import { Progress } from '@/components/shadcn/progress';
+import { Alert, AlertDescription } from '@/components/shadcn/alert';
+import { Card, CardContent } from '@/components/shadcn/card';
+import { Badge } from '@/components/shadcn/badge';
+import { Checkbox } from '@/components/shadcn/checkbox';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/shadcn/select';
+import { 
+  Loader2, 
+  AlertCircle, 
+  CheckCircle2, 
+  AlertTriangle, 
+  Info,
+  ChevronDown,
+  ChevronUp,
+  Download,
+  Sparkles,
+  Languages,
+  Mic,
+  Palette,
+  Layout,
+  FlaskConical
+} from 'lucide-react';
 
 const TextToVideoForm = () => {
   const [text, setText] = useState("");
@@ -23,10 +50,9 @@ const TextToVideoForm = () => {
   const [aspectRatio, setAspectRatio] = useState("landscape");
   const [templates, setTemplates] = useState([]);
   const [selectedTemplate, setSelectedTemplate] = useState("");
-  const [showAdvanced, setShowAdvanced] = useState(false); // NEW: advanced dropdown toggle
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const [experimental, setExperimental] = useState(false);
   const pollingRef = useRef();
-
 
   async function recordFeedbackonError(message) {
     try {
@@ -36,13 +62,12 @@ const TextToVideoForm = () => {
     }
   }
 
-  // Fetch styles on mount
   useEffect(() => {
     async function fetchStyles() {
       try {
         const data = await getStyles();
-        setStyles(data || []); // Set styles from API response
-        setStyle(data[0]?.name || ""); // Default to the first style
+        setStyles(data || []);
+        setStyle(data[0]?.name || "");
       } catch (error) {
         console.log(error.message)
         setStyles([]);
@@ -51,13 +76,12 @@ const TextToVideoForm = () => {
     fetchStyles();
   }, []);
 
-  // Fetch templates on mount
   useEffect(() => {
     async function fetchTemplates() {
       try {
         const data = await getTemplates();
         setTemplates(data || []);
-        setSelectedTemplate(data[0]?.name || ""); // Default to the first template
+        setSelectedTemplate(data[0]?.name || "");
       } catch (error) {
         console.log(error.message);
         setTemplates([]);
@@ -66,7 +90,6 @@ const TextToVideoForm = () => {
     fetchTemplates();
   }, []);
 
-  // Fetch languages on mount
   useEffect(() => {
     async function fetchLanguages() {
       try {
@@ -80,7 +103,6 @@ const TextToVideoForm = () => {
     fetchLanguages();
   }, []);
 
-  // Fetch voices when language changes
   useEffect(() => {
     if (!selectedLanguage) {
       setVoices([]);
@@ -91,7 +113,7 @@ const TextToVideoForm = () => {
       try {
         const { data } = await api.get(`/text2video/edge-tts/voices/${selectedLanguage}/`);
         setVoices(data.voices || []);
-        setSelectedVoice(""); // reset
+        setSelectedVoice("");
       } catch (error) {
         console.log(error.message)
         setVoices([]);
@@ -112,20 +134,14 @@ const TextToVideoForm = () => {
     } catch (error) {
       if (error.status === 429) {
         setError("You have reached the generation limit for today. Please try again tomorrow.");
-      }
-      else {
-    //   await recordFeedbackonError(error.message);
-    //   setError(
-    //   "Something went wrong on our side. We've recorded the issue. Your video may still be generating, so please check the My Creations page after a few minutes."
-    // );
-    setError(error.message)
+      } else {
+        setError(error.message)
       }
     } finally {
       setLoading(false);
     }
   };
 
-  // SSE for tracking generation progress with auto-reconnect and user feedback
   useEffect(() => {
     if (!result?.tracker_id) return;
 
@@ -142,10 +158,9 @@ const TextToVideoForm = () => {
       tracker.onopen = () => {
         if (isReconnect) {
           setSuccess("Live progress reconnected!");
-          // Hide the success message after 2 seconds
           connectedTimeout = setTimeout(() => setSuccess(null), 2000);
         }
-        setWarning(null); // Clear any warning
+        setWarning(null);
       };
 
       tracker.onmessage = (event) => {
@@ -167,7 +182,7 @@ const TextToVideoForm = () => {
         console.log("SSE error:", err);
         setWarning("Live progress updates were interrupted. Attempting to reconnect...");
         tracker.close();
-        reconnectTimeout = setTimeout(() => connectSSE(true), 3000); // Reconnect after 3 seconds
+        reconnectTimeout = setTimeout(() => connectSSE(true), 3000);
       };
     }
 
@@ -181,160 +196,237 @@ const TextToVideoForm = () => {
   }, [result?.tracker_id]);
 
   return (
-    <form className="flex flex-col justify-center" onSubmit={handleSubmit}>
-      {result && <ProgressBar progress={result?.progress || 0} statusMessage={result?.status_message || ""} />}
-      {error && <StatusMessage message={error} type="error" />}
-      {warning && <StatusMessage message={warning} type="warning" />}
-      {success && <StatusMessage message={success} type="success" />}
-      {info && <StatusMessage message={info} type="info" />}
+    <form className="space-y-4" onSubmit={handleSubmit}>
+      {/* Progress Bar */}
+      {result && (
+        <Card className="border-primary/20 bg-primary/5">
+          <CardContent className="pt-4">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm font-medium text-primary">{result?.status_message || "Processing..."}</span>
+              <Badge variant="secondary">{result?.progress || 0}%</Badge>
+            </div>
+            <Progress value={result?.progress || 0} className="h-2" />
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Status Messages */}
+      {error && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+      {warning && (
+        <Alert className="border-yellow-500/50 bg-yellow-500/10">
+          <AlertTriangle className="h-4 w-4 text-yellow-600" />
+          <AlertDescription className="text-yellow-700">{warning}</AlertDescription>
+        </Alert>
+      )}
+      {success && (
+        <Alert className="border-primary/50 bg-primary/10">
+          <CheckCircle2 className="h-4 w-4 text-primary" />
+          <AlertDescription className="text-primary">{success}</AlertDescription>
+        </Alert>
+      )}
+      {info && (
+        <Alert>
+          <Info className="h-4 w-4" />
+          <AlertDescription>{info}</AlertDescription>
+        </Alert>
+      )}
+
       {/* Basic Options */}
-      <div className="bg-white rounded-xl shadow p-4 mb-2 border border-gray-200">
-        <div className="flex flex-col md:flex-row gap-2">
-          <div className="flex-1 min-w-0">
-            <label className="block text-sm text-gray-600 mb-1" htmlFor="language-select">Language</label>
-            <select
-              id="language-select"
-              className="border rounded-lg p-2 w-full bg-white text-gray-800 focus:ring-2 focus:ring-purple-300 transition"
-              value={selectedLanguage}
-              onChange={e => setSelectedLanguage(e.target.value)}
-            >
-              <option value="" disabled>Select Language</option>
-              {languages.map(lang => (
-                <option key={lang.code} value={lang.code} className="truncate">{lang.name}</option>
-              ))}
-            </select>
-          </div>
-          <div className="flex-1 min-w-0">
-            <label className="block text-sm text-gray-600 mb-1" htmlFor="voice-select">Voice</label>
-            <select
-              id="voice-select"
-              className="border rounded-lg p-2 w-full bg-white text-gray-800 focus:ring-2 focus:ring-purple-300 transition"
-              value={selectedVoice}
-              onChange={e => setSelectedVoice(e.target.value)}
-              disabled={!voices.length}
-            >
-              <option value="" disabled>Select Voice</option>
-              {voices.map(voice => (
-                <option key={voice} value={voice} className="truncate">{voice}</option>
-              ))}
-            </select>
-          </div>
-          <div className="flex items-center min-w-0 pt-6 md:pt-0 md:pl-4">
-            <input
-              id="experimental-checkbox"
-              type="checkbox"
-              checked={experimental}
-              onChange={e => setExperimental(e.target.checked)}
-              className="h-4 w-4 text-purple-600 focus:ring-purple-400 border-gray-300 rounded"
-            />
-            <label htmlFor="experimental-checkbox" className="ml-2 text-sm text-gray-700 font-medium">
-              Experimental
-            </label>
-          </div>
-        </div>
+      <Card>
+        <CardContent className="pt-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <Languages className="h-4 w-4 text-muted-foreground" />
+                Language
+              </Label>
+              <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Language" />
+                </SelectTrigger>
+                <SelectContent>
+                  {languages.map(lang => (
+                    <SelectItem key={lang.code} value={lang.code}>{lang.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <Mic className="h-4 w-4 text-muted-foreground" />
+                Voice
+              </Label>
+              <Select value={selectedVoice} onValueChange={setSelectedVoice} disabled={!voices.length}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Voice" />
+                </SelectTrigger>
+                <SelectContent>
+                  {voices.map(voice => (
+                    <SelectItem key={voice} value={voice}>{voice}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-        <button
-          type="button"
-          className="mt-4 px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition font-medium w-full"
-          onClick={() => setShowAdvanced(v => !v)}
-        >
-          {showAdvanced ? "Hide Advanced Customization" : "Show Advanced Customization"}
-        </button>
-      </div>
+            <div className="flex items-end">
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="experimental" 
+                  checked={experimental}
+                  onCheckedChange={setExperimental}
+                />
+                <Label htmlFor="experimental" className="flex items-center gap-2 cursor-pointer">
+                  <FlaskConical className="h-4 w-4 text-muted-foreground" />
+                  Experimental
+                </Label>
+              </div>
+            </div>
+          </div>
+
+          <Button
+            type="button"
+            variant="ghost"
+            className="w-full mt-4"
+            onClick={() => setShowAdvanced(v => !v)}
+          >
+            {showAdvanced ? (
+              <>Hide Advanced Options <ChevronUp className="ml-2 h-4 w-4" /></>
+            ) : (
+              <>Show Advanced Options <ChevronDown className="ml-2 h-4 w-4" /></>
+            )}
+          </Button>
+        </CardContent>
+      </Card>
+
       {/* Advanced Options */}
       {showAdvanced && (
-        <div className="bg-gray-50 rounded-xl shadow p-4 mb-2 border border-gray-200 animate-fade-in">
-          <div className="font-semibold text-gray-700 mb-2">Advanced Options</div>
-          <div className="flex flex-col md:flex-row gap-2">
-            <div className="flex-1 min-w-0">
-              <label className="block text-sm text-gray-600 mb-1" htmlFor="aspect-select">Aspect Ratio</label>
-              <select
-                id="aspect-select"
-                className="border rounded-lg p-2 w-full bg-white text-gray-800 focus:ring-2 focus:ring-purple-300 transition"
-                value={aspectRatio}
-                onChange={(e) => setAspectRatio(e.target.value)}
-              >
-                <option value="" disabled>Select Aspect Ratio</option>
-                <option value="landscape">LandScape (16:9)</option>
-                <option value="portrait">Portrait (9:16)</option>
-              </select>
+        <Card className="border-dashed animate-in fade-in-50">
+          <CardContent className="pt-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <Layout className="h-4 w-4 text-muted-foreground" />
+                  Aspect Ratio
+                </Label>
+                <Select value={aspectRatio} onValueChange={setAspectRatio}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select Aspect Ratio" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="landscape">Landscape (16:9)</SelectItem>
+                    <SelectItem value="portrait">Portrait (9:16)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <Palette className="h-4 w-4 text-muted-foreground" />
+                  Style
+                </Label>
+                <Select value={style} onValueChange={setStyle}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select Style" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {styles.map(s => (
+                      <SelectItem key={s.name} value={s.name}>{s.display_name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-muted-foreground" />
+                  Template
+                </Label>
+                <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select Template" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {templates.map(t => (
+                      <SelectItem key={t.name} value={t.name}>{t.display_name || t.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-            <div className="flex-1 min-w-0">
-              <label className="block text-sm text-gray-600 mb-1" htmlFor="style-select">Style</label>
-              <select
-                id="style-select"
-                className="border rounded-lg p-2 w-full bg-white text-gray-800 focus:ring-2 focus:ring-purple-300 transition"
-                value={style}
-                onChange={e => setStyle(e.target.value)}
-              >
-                <option value="" disabled>Select Style</option>
-                {styles.map(s => (
-                  <option key={s.name} value={s.name}>{s.display_name}</option>
-                ))}
-              </select>
-            </div>
-            <div className="flex-1 min-w-0">
-              <label className="block text-sm text-gray-600 mb-1" htmlFor="template-select">Template</label>
-              <select
-                id="template-select"
-                className="border rounded-lg p-2 w-full bg-white text-gray-800 focus:ring-2 focus:ring-purple-300 transition"
-                value={selectedTemplate}
-                onChange={e => setSelectedTemplate(e.target.value)}
-              >
-                <option value="" disabled>Select Template</option>
-                {templates.map(t => (
-                  <option key={t.name} value={t.name}>{t.display_name || t.name}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       )}
-      <textarea
-        id="story-input"
-        maxLength={1500}
-        className="w-full h-60 md:h-80 p-4 border border-gray-300 rounded-xl mb-2 focus:outline-none focus:ring-2 focus:ring-purple-400 resize-none"
-        placeholder="Paste your story or script here..."
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-      />
-      <div id="char-count" className="text-sm text-gray-500 mb-2 w-full text-right">
-        {text.length} / 1500 characters
+
+      {/* Text Input */}
+      <div className="space-y-2">
+        <Textarea
+          id="story-input"
+          maxLength={1500}
+          className="min-h-[250px] md:min-h-[300px] resize-none"
+          placeholder="Paste your story or script here..."
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+        />
+        <div className="flex justify-end">
+          <span className="text-sm text-muted-foreground">
+            {text.length} / 1500 characters
+          </span>
+        </div>
       </div>
+
+      {/* Submit Button */}
       <Button
         type="submit"
-        text="Generate Video"
-        loading={loading}
-        disabled={
-          loading || (result?.tracker_id && result?.status?.toUpperCase() !== "COMPLETED")
-        }
-      />
-
-      <div className="mt-4">
-        {result?.video_url ? (
+        size="lg"
+        className="w-full"
+        disabled={loading || (result?.tracker_id && result?.status?.toUpperCase() !== "COMPLETED")}
+      >
+        {loading ? (
           <>
-            <div className="flex justify-center">
-              <video
-                className="w-full h-auto max-w-3xl rounded-xl shadow"
-                controls
-                controlsList="nodownload"
-                src={result.video_url}
-              />
-            </div>
-            <div className="flex justify-center mt-2">
-              <a
-                href={result.video_url}
-                download
-                rel="noopener noreferrer"
-              >
-                <Button text="Download" type="button" />
-              </a>
-            </div>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Generating...
           </>
         ) : (
-          <div className="text-center text-gray-500">
-            Video will appear here after generation
+          <>
+            <Sparkles className="mr-2 h-4 w-4" />
+            Generate Video
+          </>
+        )}
+      </Button>
+
+      {/* Video Result */}
+      <div className="mt-6">
+        {result?.video_url ? (
+          <Card className="overflow-hidden">
+            <CardContent className="p-0">
+              <div className="flex justify-center bg-black">
+                <video
+                  className="w-full h-auto max-w-3xl"
+                  controls
+                  controlsList="nodownload"
+                  src={result.video_url}
+                />
+              </div>
+              <div className="p-4 flex justify-center">
+                <a href={result.video_url} download rel="noopener noreferrer">
+                  <Button variant="outline" className="gap-2">
+                    <Download className="h-4 w-4" />
+                    Download Video
+                  </Button>
+                </a>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="text-center text-muted-foreground py-8 border border-dashed rounded-lg">
+            <Sparkles className="h-8 w-8 mx-auto mb-2 text-muted-foreground/50" />
+            <p>Video will appear here after generation</p>
           </div>
         )}
       </div>

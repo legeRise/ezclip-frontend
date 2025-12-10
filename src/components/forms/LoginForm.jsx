@@ -1,11 +1,15 @@
 import React, { useContext } from 'react'
-import Button from '../ui/Button'
 import { useNavigate } from 'react-router-dom';
 import { login, getUserInfo } from '../../services/authService';
-import StatusMessage from '../ui/StatusMessage';
 import { UserContext } from '../../contexts/UserContext';
 import { GoogleLogin } from '@react-oauth/google';
 import { useGoogleSignIn } from '../google/useGoogleSignIn';
+import { Button } from '@/components/shadcn/button';
+import { Input } from '@/components/shadcn/input';
+import { Label } from '@/components/shadcn/label';
+import { Alert, AlertDescription } from '@/components/shadcn/alert';
+import { Separator } from '@/components/shadcn/separator';
+import { Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 const LoginForm = ({setIsAuthenticated}) => {
   const [email, setEmail] = React.useState("");
@@ -16,7 +20,6 @@ const LoginForm = ({setIsAuthenticated}) => {
   const navigate = useNavigate();
   const { setUserInfo } = useContext(UserContext);
 
-  // Use the centralized Google sign-in hook
   const {
     handleGoogleSignIn,
     loading: googleLoading,
@@ -26,37 +29,44 @@ const LoginForm = ({setIsAuthenticated}) => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError(null); // Clear previous error important if next time the result becomes available
-    setResult(null); // Clear previous result 
+    setError(null);
+    setResult(null);
     
-    // Call the login function from authService
     setLoading(true);
-        try {
-          const data = await login(email, password);
-          localStorage.setItem("access", data.access);
-          localStorage.setItem("refresh", data.refresh);
-          setResult(data);
-          setIsAuthenticated(true);
-          const userInfo = await getUserInfo();
-          setUserInfo(userInfo); // Set user info in context
-          navigate('/generate-video', {replace : true}); // Redirect to text-to-video page
-        } catch (err) {
-          setError(err.message);
-        } finally {
-          setLoading(false);
-        }
+    try {
+      const data = await login(email, password);
+      localStorage.setItem("access", data.access);
+      localStorage.setItem("refresh", data.refresh);
+      setResult(data);
+      setIsAuthenticated(true);
+      const userInfo = await getUserInfo();
+      setUserInfo(userInfo);
+      navigate('/generate-video', {replace : true});
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
-    <form className="flex flex-col" onSubmit={handleLogin}>
-      {error ? (
-        <StatusMessage message={error} type="error" />
-      ) : result && (
-        <StatusMessage message="Login successful!" type="success" />
+    <form className="space-y-4" onSubmit={handleLogin}>
+      {error && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+      
+      {result && (
+        <Alert className="border-primary/50 bg-primary/10">
+          <CheckCircle2 className="h-4 w-4 text-primary" />
+          <AlertDescription className="text-primary">Login successful!</AlertDescription>
+        </Alert>
       )}
 
       {/* Google Sign-In Button */}
-      <div className='flex justify-center items-center mb-4'>
+      <div className="flex justify-center">
         <GoogleLogin
           onSuccess={credentialResponse => {
             handleGoogleSignIn(credentialResponse);
@@ -67,45 +77,63 @@ const LoginForm = ({setIsAuthenticated}) => {
         />
       </div>
 
-      <input
-        type="text"
-        maxLength={150}
-        placeholder="Email"
-        className="w-full p-3 border border-gray-300 rounded-xl mb-2"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <input
-        type="password"
-        maxLength={150}
-        placeholder="Password"
-        className="w-full p-3 border border-gray-300 rounded-xl mb-2"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <Separator className="w-full" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-card px-2 text-muted-foreground">Or continue with email</span>
+        </div>
+      </div>
 
-      <Button
-        type="submit"
-        text="Sign In"
-        loading={loading}
-        disabled={loading}
-      />
+      <div className="space-y-2">
+        <Label htmlFor="email">Email</Label>
+        <Input
+          id="email"
+          type="email"
+          maxLength={150}
+          placeholder="Enter your email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+      </div>
 
-      <div className="mt-2 flex flex-col items-center">
-        <span
-          className="text-blue-400 cursor-pointer text-sm mb-5"
+      <div className="space-y-2">
+        <Label htmlFor="password">Password</Label>
+        <Input
+          id="password"
+          type="password"
+          maxLength={150}
+          placeholder="Enter your password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+      </div>
+
+      <Button type="submit" className="w-full" disabled={loading}>
+        {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+        Sign In
+      </Button>
+
+      <div className="flex flex-col items-center gap-2 text-sm">
+        <button
+          type="button"
+          className="text-primary hover:underline"
           onClick={() => navigate('/forgot-password')}
         >
           Forgot Password?
-        </span>
-        <span className="text-center text-sm">
-          Don't have an Account?{' '}
-          <span
-            className="text-blue-400 cursor-pointer"
+        </button>
+        <span className="text-muted-foreground">
+          Don't have an account?{' '}
+          <button
+            type="button"
+            className="text-primary hover:underline font-medium"
             onClick={() => navigate('/signup')}
           >
             Sign Up
-          </span>
+          </button>
         </span>
       </div>
     </form>

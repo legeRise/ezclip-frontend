@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { recordFeedback } from '../services/textToVideoService';
-import Spinner from './ui/Spinner';
+import { Button } from '@/components/shadcn/button';
+import { Textarea } from '@/components/shadcn/textarea';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/shadcn/card';
+import { MessageCircle, Send, Loader2, CheckCircle2, X } from 'lucide-react';
 
 const FloatingFeedback = () => {
   const [open, setOpen] = useState(false);
@@ -31,51 +34,68 @@ const FloatingFeedback = () => {
 
   return (
     <div>
-      <button
-        className="fixed bottom-6 right-6 bg-green-500 text-white rounded-full shadow-lg p-3 z-50 hover:bg-green-600 transition focus:outline-none focus:ring-2 focus:ring-green-300"
+      {/* Floating Button */}
+      <Button
+        className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg z-50"
+        size="icon"
         onClick={() => setOpen(!open)}
         aria-label="Feedback"
       >
-        <span className="text-lg">💬</span>
-      </button>
+        {open ? (
+          <X className="h-6 w-6" />
+        ) : (
+          <MessageCircle className="h-6 w-6" />
+        )}
+      </Button>
+
+      {/* Feedback Card */}
       {open && (
-        <div className="fixed bottom-20 right-6 bg-white border border-green-200 rounded-2xl shadow-xl p-4 w-72 z-50 animate-fadeIn">
-          <div className="font-semibold text-green-700 mb-2 text-base">Feedback</div>
-          {!submitted ? (
-            <form onSubmit={handleSend}>
-              <textarea
-                className="w-full border border-green-200 rounded-lg p-2 text-sm mb-2 focus:outline-none focus:ring-2 focus:ring-green-200"
-                placeholder="Share your experience to help me improve it..."
-                value={input}
-                onChange={e => setInput(e.target.value)}
-                rows={3}
-                maxLength={300}
-                disabled={loading}
-              />
-              {error && <div className="text-red-500 text-xs mb-1">{error}</div>}
-              <button
-                type="submit"
-                className="bg-green-500 text-white rounded-full px-4 py-1 font-semibold hover:bg-green-600 transition w-full flex items-center justify-center gap-2"
-                disabled={loading}
-              >
-                {loading && <Spinner size={18} colorClass="border-white" />}
-                Send
-              </button>
-            </form>
-          ) : (
-            <div className="text-green-700 text-sm text-center">Thank you for your feedback!</div>
-          )}
-        </div>
+        <Card className="fixed bottom-24 right-6 w-80 z-50 shadow-xl animate-in slide-in-from-bottom-4 fade-in duration-200">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <MessageCircle className="h-5 w-5 text-primary" />
+              Feedback
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {!submitted ? (
+              <form onSubmit={handleSend} className="space-y-3">
+                <Textarea
+                  placeholder="Share your experience to help us improve..."
+                  value={input}
+                  onChange={e => setInput(e.target.value)}
+                  rows={3}
+                  maxLength={300}
+                  disabled={loading}
+                  className="resize-none"
+                />
+                <div className="flex justify-between items-center text-xs text-muted-foreground">
+                  <span>{input.length}/300</span>
+                  {error && <span className="text-destructive">{error}</span>}
+                </div>
+                <Button type="submit" className="w-full" disabled={loading || !input.trim()}>
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="mr-2 h-4 w-4" />
+                      Send Feedback
+                    </>
+                  )}
+                </Button>
+              </form>
+            ) : (
+              <div className="flex flex-col items-center py-4 text-primary">
+                <CheckCircle2 className="h-10 w-10 mb-2" />
+                <span className="font-medium">Thank you for your feedback!</span>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       )}
-      <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fadeIn {
-          animation: fadeIn 0.25s ease;
-        }
-      `}</style>
     </div>
   );
 };

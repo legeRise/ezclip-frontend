@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react';
 import { HashRouter as Router } from 'react-router-dom';
-import Spinner from './components/ui/Spinner';
 import AppRoutes from './AppRoutes';
 import { UserProvider } from './contexts/UserContext';
-
+import { Card, CardContent } from '@/components/shadcn/card';
+import { Loader2 } from 'lucide-react';
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -18,13 +18,17 @@ const App = () => {
 
   if (checkAuthLoading) {
     return (
-      <div className="w-full h-screen flex items-center justify-center bg-green-200">
-        <div className="flex flex-col items-center p-8 rounded-xl shadow-lg bg-white">
-          <Spinner colorClass="text-green-500" />
-          <span className="mt-4 text-gray-700 text-lg font-medium animate-pulse">
-            Authenticating...
-          </span>
-        </div>
+      <div className="w-full h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-primary/10">
+        <Card className="shadow-xl border-primary/10">
+          <CardContent className="flex flex-col items-center p-8">
+            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+              <Loader2 className="w-6 h-6 text-primary animate-spin" />
+            </div>
+            <span className="text-muted-foreground font-medium animate-pulse">
+              Authenticating...
+            </span>
+          </CardContent>
+        </Card>
       </div>
     );
   }
