@@ -274,7 +274,7 @@ const TextToVideoForm = () => {
               </Select>
             </div>
 
-            <div className="flex items-end">
+            {/* <div className="flex items-end">
               <div className="flex items-center space-x-2">
                 <Checkbox 
                   id="experimental" 
@@ -286,7 +286,7 @@ const TextToVideoForm = () => {
                   Experimental
                 </Label>
               </div>
-            </div>
+            </div> */}
           </div>
 
           <Button
