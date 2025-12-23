@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { generateVideoFromText, getStyles, getTemplates, recordFeedback } from '../../services/textToVideoService';
+import { generateVideoFromText, getStyles, getTemplates, recordFeedback, getTtsServices, getTtsVoices } from '../../services/textToVideoService';
 import api from '../../services/api';
 import { Button } from '@/components/shadcn/button';
 import { Label } from '@/components/shadcn/label';
@@ -30,7 +30,8 @@ import {
   Mic,
   Palette,
   Layout,
-  FlaskConical
+  FlaskConical,
+  Volume2
 } from 'lucide-react';
 
 const TextToVideoForm = () => {
@@ -41,6 +42,11 @@ const TextToVideoForm = () => {
   const [success, setSuccess] = useState(null);
   const [info, setInfo] = useState(null);
   const [result, setResult] = useState(null);
+  
+  // TTS Services state
+  const [ttsServices, setTtsServices] = useState([]);
+  const [selectedService, setSelectedService] = useState("edge");
+  
   const [languages, setLanguages] = useState([]);
   const [voices, setVoices] = useState([]);
   const [styles, setStyles] = useState([]);
@@ -90,7 +96,28 @@ const TextToVideoForm = () => {
     fetchTemplates();
   }, []);
 
+  // Fetch available TTS services on mount
   useEffect(() => {
+    async function fetchTtsServices() {
+      try {
+        const services = await getTtsServices();
+        setTtsServices(services || []);
+      } catch (error) {
+        console.log(error.message);
+        // Fallback to Edge TTS if services endpoint fails
+        setTtsServices([{ id: 'edge', name: 'Edge TTS', supports_languages: true }]);
+      }
+    }
+    fetchTtsServices();
+  }, []);
+
+  // Fetch languages for Edge TTS
+  useEffect(() => {
+    if (selectedService !== 'edge') {
+      setLanguages([]);
+      setSelectedLanguage("");
+      return;
+    }
     async function fetchLanguages() {
       try {
         const { data } = await api.get("/text2video/edge-tts/languages/");
@@ -101,26 +128,34 @@ const TextToVideoForm = () => {
       }
     }
     fetchLanguages();
-  }, []);
+  }, [selectedService]);
 
+  // Fetch voices based on selected TTS service and language
   useEffect(() => {
-    if (!selectedLanguage) {
-      setVoices([]);
-      setSelectedVoice("");
-      return;
-    }
     async function fetchVoices() {
       try {
-        const { data } = await api.get(`/text2video/edge-tts/voices/${selectedLanguage}/`);
-        setVoices(data.voices || []);
-        setSelectedVoice("");
+        if (selectedService === 'kokoro') {
+          // Kokoro doesn't need language selection
+          const data = await getTtsVoices('kokoro');
+          setVoices(data.voices || []);
+          setSelectedVoice(data.voices?.[0] || "");
+        } else if (selectedService === 'edge' && selectedLanguage) {
+          // Edge TTS requires language
+          const data = await getTtsVoices('edge', selectedLanguage);
+          setVoices(data.voices || []);
+          setSelectedVoice("");
+        } else {
+          setVoices([]);
+          setSelectedVoice("");
+        }
       } catch (error) {
-        console.log(error.message)
+        console.log(error.message);
         setVoices([]);
+        setSelectedVoice("");
       }
     }
     fetchVoices();
-  }, [selectedLanguage]);
+  }, [selectedService, selectedLanguage]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -128,7 +163,16 @@ const TextToVideoForm = () => {
     setError(null);
     setResult(null);
     try {
-      const response = await generateVideoFromText(text, selectedLanguage, selectedVoice, aspectRatio, style, selectedTemplate, experimental);
+      const response = await generateVideoFromText(
+        text, 
+        selectedService, 
+        selectedLanguage, 
+        selectedVoice, 
+        aspectRatio, 
+        style, 
+        selectedTemplate, 
+        experimental
+      );
       console.log("Generation started:", response);
       setResult(response.data);
     } catch (error) {
@@ -240,22 +284,43 @@ const TextToVideoForm = () => {
       <Card>
         <CardContent className="pt-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* TTS Service Selection */}
             <div className="space-y-2">
               <Label className="flex items-center gap-2">
-                <Languages className="h-4 w-4 text-muted-foreground" />
-                Language
+                <Volume2 className="h-4 w-4 text-muted-foreground" />
+                TTS Service
               </Label>
-              <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
+              <Select value={selectedService} onValueChange={setSelectedService}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select Language" />
+                  <SelectValue placeholder="Select TTS Service" />
                 </SelectTrigger>
                 <SelectContent>
-                  {languages.map(lang => (
-                    <SelectItem key={lang.code} value={lang.code}>{lang.name}</SelectItem>
+                  {ttsServices.map(service => (
+                    <SelectItem key={service.id} value={service.id}>{service.name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
+
+            {/* Language Selection - Only show for Edge TTS */}
+            {selectedService === 'edge' && (
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <Languages className="h-4 w-4 text-muted-foreground" />
+                  Language
+                </Label>
+                <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select Language" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {languages.map(lang => (
+                      <SelectItem key={lang.code} value={lang.code}>{lang.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             <div className="space-y-2">
               <Label className="flex items-center gap-2">
