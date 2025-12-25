@@ -6,8 +6,8 @@ export async function generateVideoFromText(text, ttsService, language, voice, r
   // TTS service (defaults to 'edge' on backend if not provided)
   if (ttsService) payload.tts_service = ttsService;
   
-  // Language is only used with Edge TTS
-  if (ttsService === 'edge' && language) payload.language = language;
+  // Language for TTS service
+  if (language) payload.language = language;
   
   if (voice) payload.voice = voice;
   if (resolution) payload.resolution = resolution;
@@ -25,15 +25,16 @@ export async function getTtsServices() {
   return res.data.services || [];
 }
 
-// Fetch voices for a specific TTS service
-// For Kokoro: no language needed
-// For Edge: language parameter is required
-export async function getTtsVoices(service, language = null) {
-  const url = language 
-    ? `/text2video/tts/voices/${service}/${language}/`
-    : `/text2video/tts/voices/${service}/`;
-  const res = await api.get(url);
-  return res.data;
+// Fetch languages for a specific TTS service
+export async function getTtsLanguages(service) {
+  const res = await api.get(`/text2video/tts/languages/${service}/`);
+  return res.data.languages || [];
+}
+
+// Fetch voices for a specific TTS service and language
+export async function getTtsVoices(service, language) {
+  const res = await api.get(`/text2video/tts/voices/${service}/${language}/`);
+  return res.data.voices || [];
 }
 
 export async function recordFeedback(comment) {

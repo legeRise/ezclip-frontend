@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { generateVideoFromText, getStyles, getTemplates, recordFeedback, getTtsServices, getTtsVoices } from '../../services/textToVideoService';
-import api from '../../services/api';
+import { generateVideoFromText, getStyles, getTemplates, recordFeedback, getTtsServices, getTtsLanguages, getTtsVoices } from '../../services/textToVideoService';
 import { Button } from '@/components/shadcn/button';
 import { Label } from '@/components/shadcn/label';
 import { Textarea } from '@/components/shadcn/textarea';
@@ -111,17 +110,20 @@ const TextToVideoForm = () => {
     fetchTtsServices();
   }, []);
 
-  // Fetch languages for Edge TTS
+  // Fetch languages for selected TTS service
   useEffect(() => {
-    if (selectedService !== 'edge') {
+    if (!selectedService) {
       setLanguages([]);
       setSelectedLanguage("");
       return;
     }
     async function fetchLanguages() {
       try {
-        const { data } = await api.get("/text2video/edge-tts/languages/");
-        setLanguages(data.languages || []);
+        const data = await getTtsLanguages(selectedService);
+        setLanguages(data || []);
+        setSelectedLanguage("");
+        setVoices([]);
+        setSelectedVoice("");
       } catch (error) {
         console.log(error.message)
         setLanguages([]);
@@ -133,21 +135,15 @@ const TextToVideoForm = () => {
   // Fetch voices based on selected TTS service and language
   useEffect(() => {
     async function fetchVoices() {
+      if (!selectedService || !selectedLanguage) {
+        setVoices([]);
+        setSelectedVoice("");
+        return;
+      }
       try {
-        if (selectedService === 'kokoro') {
-          // Kokoro doesn't need language selection
-          const data = await getTtsVoices('kokoro');
-          setVoices(data.voices || []);
-          setSelectedVoice(data.voices?.[0] || "");
-        } else if (selectedService === 'edge' && selectedLanguage) {
-          // Edge TTS requires language
-          const data = await getTtsVoices('edge', selectedLanguage);
-          setVoices(data.voices || []);
-          setSelectedVoice("");
-        } else {
-          setVoices([]);
-          setSelectedVoice("");
-        }
+        const data = await getTtsVoices(selectedService, selectedLanguage);
+        setVoices(data || []);
+        setSelectedVoice("");
       } catch (error) {
         console.log(error.message);
         setVoices([]);
@@ -302,25 +298,23 @@ const TextToVideoForm = () => {
               </Select>
             </div>
 
-            {/* Language Selection - Only show for Edge TTS */}
-            {selectedService === 'edge' && (
-              <div className="space-y-2">
-                <Label className="flex items-center gap-2">
-                  <Languages className="h-4 w-4 text-muted-foreground" />
-                  Language
-                </Label>
-                <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select Language" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {languages.map(lang => (
-                      <SelectItem key={lang.code} value={lang.code}>{lang.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
+            {/* Language Selection */}
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <Languages className="h-4 w-4 text-muted-foreground" />
+                Language
+              </Label>
+              <Select value={selectedLanguage} onValueChange={setSelectedLanguage} disabled={!languages.length}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Language" />
+                </SelectTrigger>
+                <SelectContent>
+                  {languages.map(lang => (
+                    <SelectItem key={lang.code} value={lang.code}>{lang.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
             <div className="space-y-2">
               <Label className="flex items-center gap-2">
@@ -333,7 +327,7 @@ const TextToVideoForm = () => {
                 </SelectTrigger>
                 <SelectContent>
                   {voices.map(voice => (
-                    <SelectItem key={voice} value={voice}>{voice}</SelectItem>
+                    <SelectItem key={voice.id} value={voice.id}>{voice.name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
