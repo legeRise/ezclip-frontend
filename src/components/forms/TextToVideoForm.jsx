@@ -30,7 +30,8 @@ import {
   Palette,
   Layout,
   FlaskConical,
-  Volume2
+  Volume2,
+  Captions
 } from 'lucide-react';
 
 const TextToVideoForm = () => {
@@ -57,6 +58,7 @@ const TextToVideoForm = () => {
   const [selectedTemplate, setSelectedTemplate] = useState("");
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [experimental, setExperimental] = useState(false);
+  const [enableCaptions, setEnableCaptions] = useState(false);
   const pollingRef = useRef();
 
   async function recordFeedbackonError(message) {
@@ -167,7 +169,8 @@ const TextToVideoForm = () => {
         aspectRatio, 
         style, 
         selectedTemplate, 
-        experimental
+        experimental,
+        enableCaptions
       );
       console.log("Generation started:", response);
       setResult(response.data);
@@ -418,6 +421,17 @@ const TextToVideoForm = () => {
                 </Select>
               </div>
             </div>
+            <div className="flex items-center space-x-2 mt-4">
+              <Checkbox 
+                id="enableCaptions" 
+                checked={enableCaptions}
+                onCheckedChange={setEnableCaptions}
+              />
+              <Label htmlFor="enableCaptions" className="flex items-center gap-2 cursor-pointer">
+                <Captions className="h-4 w-4 text-muted-foreground" />
+                Enable Captions
+              </Label>
+            </div>
           </CardContent>
         </Card>
       )}
@@ -426,7 +440,7 @@ const TextToVideoForm = () => {
       <div className="space-y-2">
         <Textarea
           id="story-input"
-          maxLength={1500}
+          maxLength={5000}
           className="min-h-[250px] md:min-h-[300px] resize-none"
           placeholder="Paste your story or script here..."
           value={text}
@@ -434,7 +448,7 @@ const TextToVideoForm = () => {
         />
         <div className="flex justify-end">
           <span className="text-sm text-muted-foreground">
-            {text.length} / 1500 characters
+            {text.length} / 5000 characters
           </span>
         </div>
       </div>

@@ -1,6 +1,6 @@
 import api from "./api";
 
-export async function generateVideoFromText(text, ttsService, language, voice, resolution, style, template, experimental) {
+export async function generateVideoFromText(text, ttsService, language, voice, resolution, style, template, experimental, enableCaptions) {
   const payload = { script: text };
   
   // TTS service (defaults to 'edge' on backend if not provided)
@@ -14,6 +14,7 @@ export async function generateVideoFromText(text, ttsService, language, voice, r
   if (style) payload.style = style;
   if (template) payload.template = template;
   if (experimental === true) payload.use_ezclip_assets = true;
+  if (enableCaptions !== undefined) payload.enable_captions = enableCaptions;
 
   const res = await api.post("/text2video/start-generation/", payload);
   return res;
