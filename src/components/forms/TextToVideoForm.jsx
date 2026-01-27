@@ -45,7 +45,7 @@ const TextToVideoForm = () => {
   
   // TTS Services state
   const [ttsServices, setTtsServices] = useState([]);
-  const [selectedService, setSelectedService] = useState("edge");
+  const [selectedService, setSelectedService] = useState("kokoro");
   
   const [languages, setLanguages] = useState([]);
   const [voices, setVoices] = useState([]);
@@ -383,23 +383,6 @@ const TextToVideoForm = () => {
                   <SelectContent>
                     <SelectItem value="landscape">Landscape (16:9)</SelectItem>
                     <SelectItem value="portrait">Portrait (9:16)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label className="flex items-center gap-2">
-                  <Palette className="h-4 w-4 text-muted-foreground" />
-                  Style
-                </Label>
-                <Select value={style} onValueChange={setStyle}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select Style" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {styles.map(s => (
-                      <SelectItem key={s.name} value={s.name}>{s.display_name}</SelectItem>
-                    ))}
                   </SelectContent>
                 </Select>
               </div>
